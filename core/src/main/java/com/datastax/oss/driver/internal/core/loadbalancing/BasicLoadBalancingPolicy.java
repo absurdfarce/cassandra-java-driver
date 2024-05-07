@@ -45,12 +45,13 @@ import com.datastax.oss.driver.internal.core.util.collection.LazyQueryPlan;
 import com.datastax.oss.driver.internal.core.util.collection.QueryPlan;
 import com.datastax.oss.driver.internal.core.util.collection.SimpleQueryPlan;
 import com.datastax.oss.driver.shaded.guava.common.base.Predicates;
+import com.datastax.oss.driver.shaded.guava.common.collect.Lists;
+import com.datastax.oss.driver.shaded.guava.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntUnaryOperator;
-import java.util.stream.Stream;
 import net.jcip.annotations.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -334,48 +334,59 @@ public class BasicLoadBalancingPolicy implements LoadBalancingPolicy {
         return local;
       }
     }
-    QueryPlan remote =
-        new LazyQueryPlan() {
-          @Override
-          protected Object[] computeNodes() {
-            Object[] remoteNodes =
-                liveNodes.dcs().stream()
-                    .filter(Predicates.not(Predicates.equalTo(localDc)))
-                    .sorted(
-                        Comparator.comparingInt(
-                            dc -> {
-                              int i = preferredRemoteDcs.indexOf(dc);
-                              return i < 0 ? Integer.MAX_VALUE : i;
-                            }))
-                    .flatMap(
-                        dc -> {
-                          if (preferredRemoteDcs.isEmpty()) {
-                            return liveNodes.dc(dc).stream().limit(maxNodesPerRemoteDc);
-                          } else {
-                            final Object[] nodesPerRemoteDc =
-                                liveNodes.dc(dc).stream().limit(maxNodesPerRemoteDc).toArray();
-                            if (nodesPerRemoteDc.length > 0) {
-                              shuffleHead(nodesPerRemoteDc, nodesPerRemoteDc.length);
-                            }
-                            return Stream.of(nodesPerRemoteDc);
-                          }
-                        })
-                    .toArray();
+    if (preferredRemoteDcs.isEmpty()) {
+      return new CompositeQueryPlan(local, buildRemoteQueryPlanAll());
+    }
+    return new CompositeQueryPlan(local, buildRemoteQueryPlanPreferred());
+  }
 
-            int remoteNodesLength = remoteNodes.length;
-            if (remoteNodesLength == 0) {
-              return EMPTY_NODES;
-            }
+  private QueryPlan buildRemoteQueryPlanAll() {
 
-            if (preferredRemoteDcs.isEmpty()) {
-              shuffleHead(remoteNodes, remoteNodesLength);
-            }
+    return new LazyQueryPlan() {
+      @Override
+      protected Object[] computeNodes() {
 
-            return remoteNodes;
-          }
-        };
+        Object[] remoteNodes =
+            liveNodes.dcs().stream()
+                .filter(Predicates.not(Predicates.equalTo(localDc)))
+                .flatMap(dc -> liveNodes.dc(dc).stream().limit(maxNodesPerRemoteDc))
+                .toArray();
+        if (remoteNodes.length == 0) {
+          return EMPTY_NODES;
+        }
+        shuffleHead(remoteNodes, remoteNodes.length);
+        return remoteNodes;
+      }
+    };
+  }
 
-    return new CompositeQueryPlan(local, remote);
+  private QueryPlan buildRemoteQueryPlanPreferred() {
+
+    Set<String> dcs = liveNodes.dcs();
+    List<String> orderedDcs = Lists.newArrayListWithCapacity(dcs.size());
+    orderedDcs.addAll(preferredRemoteDcs);
+    orderedDcs.addAll(Sets.difference(liveNodes.dcs(), Sets.newHashSet(preferredRemoteDcs)));
+
+    QueryPlan[] queryPlans =
+        orderedDcs.stream()
+            .filter(Predicates.not(Predicates.equalTo(localDc)))
+            .map(
+                (dc) -> {
+                  return new LazyQueryPlan() {
+                    @Override
+                    protected Object[] computeNodes() {
+                      Object[] rv = liveNodes.dc(dc).toArray();
+                      if (rv.length == 0) {
+                        return EMPTY_NODES;
+                      }
+                      shuffleHead(rv, rv.length);
+                      return rv;
+                    }
+                  };
+                })
+            .toArray(QueryPlan[]::new);
+
+    return new CompositeQueryPlan(queryPlans);
   }
 
   /** Exposed as a protected method so that it can be accessed by tests */
