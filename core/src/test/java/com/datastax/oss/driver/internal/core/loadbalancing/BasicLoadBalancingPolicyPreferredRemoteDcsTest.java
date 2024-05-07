@@ -145,7 +145,7 @@ public class BasicLoadBalancingPolicyPreferredRemoteDcsTest
         .thenReturn(false);
 
     when(defaultProfile.getStringList(
-            DefaultDriverOption.LOAD_BALANCING_DC_FAILOVER_PREFERRED_REMOTE_DCS, new ArrayList<>()))
+            DefaultDriverOption.LOAD_BALANCING_DC_FAILOVER_PREFERRED_REMOTE_DCS))
         .thenReturn(ImmutableList.of("dc3", "dc2"));
 
     // Use a subclass to disable shuffling, we just spy to make sure that the shuffling method was

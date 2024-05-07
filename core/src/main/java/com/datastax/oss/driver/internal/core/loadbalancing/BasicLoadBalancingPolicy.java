@@ -50,7 +50,6 @@ import com.datastax.oss.driver.shaded.guava.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -122,7 +121,7 @@ public class BasicLoadBalancingPolicy implements LoadBalancingPolicy {
   private volatile NodeDistanceEvaluator nodeDistanceEvaluator;
   private volatile String localDc;
   private volatile NodeSet liveNodes;
-  private final List<String> preferredRemoteDcs;
+  private final LinkedHashSet<String> preferredRemoteDcs;
 
   public BasicLoadBalancingPolicy(@NonNull DriverContext context, @NonNull String profileName) {
     this.context = (InternalDriverContext) context;
@@ -138,13 +137,10 @@ public class BasicLoadBalancingPolicy implements LoadBalancingPolicy {
             .getConsistencyLevelRegistry()
             .nameToLevel(profile.getString(DefaultDriverOption.REQUEST_CONSISTENCY));
 
-    Set<String> remoteDcs =
+    preferredRemoteDcs =
         new LinkedHashSet<>(
-            Objects.requireNonNull(
-                profile.getStringList(
-                    DefaultDriverOption.LOAD_BALANCING_DC_FAILOVER_PREFERRED_REMOTE_DCS,
-                    new ArrayList<>())));
-    preferredRemoteDcs = new ArrayList<>(remoteDcs);
+            profile.getStringList(
+                DefaultDriverOption.LOAD_BALANCING_DC_FAILOVER_PREFERRED_REMOTE_DCS));
   }
 
   /**
@@ -365,7 +361,7 @@ public class BasicLoadBalancingPolicy implements LoadBalancingPolicy {
     Set<String> dcs = liveNodes.dcs();
     List<String> orderedDcs = Lists.newArrayListWithCapacity(dcs.size());
     orderedDcs.addAll(preferredRemoteDcs);
-    orderedDcs.addAll(Sets.difference(liveNodes.dcs(), Sets.newHashSet(preferredRemoteDcs)));
+    orderedDcs.addAll(Sets.difference(dcs, preferredRemoteDcs));
 
     QueryPlan[] queryPlans =
         orderedDcs.stream()
