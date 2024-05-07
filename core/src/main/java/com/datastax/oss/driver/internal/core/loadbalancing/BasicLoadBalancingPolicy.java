@@ -371,7 +371,7 @@ public class BasicLoadBalancingPolicy implements LoadBalancingPolicy {
                   return new LazyQueryPlan() {
                     @Override
                     protected Object[] computeNodes() {
-                      Object[] rv = liveNodes.dc(dc).toArray();
+                      Object[] rv = liveNodes.dc(dc).stream().limit(maxNodesPerRemoteDc).toArray();
                       if (rv.length == 0) {
                         return EMPTY_NODES;
                       }

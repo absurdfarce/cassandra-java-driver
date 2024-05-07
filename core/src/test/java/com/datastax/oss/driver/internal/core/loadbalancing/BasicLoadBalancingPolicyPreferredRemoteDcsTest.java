@@ -34,7 +34,6 @@ import com.datastax.oss.driver.internal.core.metadata.DefaultNode;
 import com.datastax.oss.driver.shaded.guava.common.collect.ImmutableList;
 import com.datastax.oss.driver.shaded.guava.common.collect.ImmutableMap;
 import com.datastax.oss.driver.shaded.guava.common.collect.ImmutableSet;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.Test;
