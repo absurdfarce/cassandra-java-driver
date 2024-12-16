@@ -41,6 +41,7 @@ import com.datastax.oss.driver.internal.core.type.codec.extras.time.PersistentZo
 import com.datastax.oss.driver.internal.core.type.codec.extras.time.TimestampMillisCodec;
 import com.datastax.oss.driver.internal.core.type.codec.extras.time.ZonedTimestampCodec;
 import com.datastax.oss.driver.internal.core.type.codec.extras.vector.FloatVectorToArrayCodec;
+import com.datastax.oss.driver.internal.core.type.codec.extras.vector.SubtypeOnlyFloatVectorToArrayCodec;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.nio.ByteBuffer;
@@ -488,5 +489,9 @@ public class ExtraTypeCodecs {
   /** Builds a new codec that maps CQL float vectors of the specified size to an array of floats. */
   public static TypeCodec<float[]> floatVectorToArray(int dimensions) {
     return new FloatVectorToArrayCodec(new DefaultVectorType(DataTypes.FLOAT, dimensions));
+  }
+
+  public static TypeCodec<float[]> subtypeOnlyFloatVectorToArray() {
+    return new SubtypeOnlyFloatVectorToArrayCodec(DataTypes.FLOAT);
   }
 }
