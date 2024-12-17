@@ -21,6 +21,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * * If we use the "subtype only" type with a {@link DefaultCodecRegistry}
  *   do we get the same codec regardless of vector dimension?
  * * Can we use the codec we get back from the default codec registry to encode and decode vectors of different sizes?
+ *
+ * Note that all of this works only because of an implementation detail in DefaultCodecRegistry.  The use of Objects.equals()
+ * in the code referenced below means that we effectively use the equals() method of the DataType impl to determine whether
+ * keys in the codec cache match.  We leverage this behaviour to make SubtypeOnlyVectorType match <i>all</i> vectors with
+ * an equivalent subtype.  This behaviour is thus not guaranteed for other codec registry impls.
+ *
+ * <a href="https://github.com/apache/cassandra-java-driver/blob/4.18.1/core/src/main/java/com/datastax/oss/driver/internal/core/type/codec/registry/DefaultCodecRegistry.java#L152-L153">Codec registry code</a>
  */
 public class SubtypeOnlyTest {
 
