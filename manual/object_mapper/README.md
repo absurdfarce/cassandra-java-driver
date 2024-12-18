@@ -30,7 +30,7 @@ The mapper is published as a separate Maven artifact:
 <dependency>
   <groupId>org.apache.cassandra</groupId>
   <artifactId>cassandra-driver-mapping</artifactId>
-  <version>3.11.5</version>
+  <version>3.12.0</version>
 </dependency>
 ```
 
