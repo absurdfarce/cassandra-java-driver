@@ -7407,6 +7407,11 @@
       {
         "code": "java.method.varargOverloadsOnlyDifferInVarargParameter",
         "justification": "CASSJAVA-102: Migrate revapi config into dedicated config files, ported from pom.xml"
+      },
+      {
+        "code": "java.method.addedToInterface",
+        "new": "method com.datastax.oss.driver.api.core.tracker.DistributedTraceIdGenerator com.datastax.oss.driver.api.core.context.DriverContext::getDistributedTraceIdGenerator()",
+        "justification": "DistributedRequestID"
       }
     ]
   }
