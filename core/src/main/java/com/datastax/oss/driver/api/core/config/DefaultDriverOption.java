@@ -1003,6 +1003,12 @@ public enum DefaultDriverOption implements DriverOption {
    */
   DISTRIBUTED_TRACE_ID_GENERATOR_CLASS("advanced.distributed-tracing.id-generator.class"),
   /**
+   * If not empty, the driver will write the distributed trace ID to this key in the custom payload
+   *
+   * <p>Value-type: {@link String}
+   */
+  DISTRIBUTED_TRACE_ID_CUSTOM_PAYLOAD_KEY("advanced.distributed-tracing.custom-payload-with-key"),
+  /**
    * An address to always translate all node addresses to that same proxy hostname no matter what IP
    * address a node has, but still using its native transport port.
    *
