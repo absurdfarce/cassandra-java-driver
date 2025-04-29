@@ -22,7 +22,9 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 
 public interface DistributedTraceIdGenerator {
   /**
-   * Generates a unique identifier for the session request. This identifier will be added to logs.
+   * Generates a unique identifier for the session request. This will be the identifier for the
+   * entire `session.execute()` call. This identifier will be added to logs, and propagated to
+   * request trackers.
    *
    * @param statement the statement to be executed
    * @param sessionName the name of the session
@@ -32,7 +34,9 @@ public interface DistributedTraceIdGenerator {
   String getSessionRequestId(@NonNull Request statement, @NonNull String sessionName, int hashCode);
 
   /**
-   * Generates a unique identifier for the node request. This identifier will be added to logs, and
+   * Generates a unique identifier for the node request. This will be the identifier for the CQL
+   * request against a particular node. There can be one or more node requests for a single session
+   * request, due to retries or speculative executions. This identifier will be added to logs, and
    * propagated to request trackers.
    *
    * @param statement the statement to be executed

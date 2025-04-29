@@ -35,6 +35,6 @@ public class UuidDistributedTraceIdGenerator implements DistributedTraceIdGenera
   @Override
   public String getNodeRequestId(
       @NonNull Request statement, @NonNull String sessionRequestId, int executionCount) {
-    return sessionRequestId + "-" + Uuids.random().toString();
+    return sessionRequestId + "-" + Uuids.random();
   }
 }

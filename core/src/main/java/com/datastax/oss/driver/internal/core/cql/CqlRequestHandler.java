@@ -72,6 +72,7 @@ import com.datastax.oss.protocol.internal.response.result.SchemaChange;
 import com.datastax.oss.protocol.internal.response.result.SetKeyspace;
 import com.datastax.oss.protocol.internal.response.result.Void;
 import com.datastax.oss.protocol.internal.util.Bytes;
+import com.datastax.oss.protocol.internal.util.collection.NullAllowingImmutableMap;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.netty.handler.codec.EncoderException;
 import io.netty.util.Timeout;
@@ -82,7 +83,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.AbstractMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -264,14 +264,15 @@ public class CqlRequestHandler implements Throttled {
     String nodeRequestId =
         this.distributedTraceIdGenerator.getNodeRequestId(
             statement, logPrefix, currentExecutionIndex);
+    Map<String, ByteBuffer> customPayload = statement.getCustomPayload();
     if (!this.customPayloadKey.isEmpty()) {
-      // We cannot do statement.getCustomPayload().put() because the default empty map is abstract
-      // But this will create new Statement instance for every request. We might want to optimize
-      // this
-      Map<String, ByteBuffer> existingMap = new HashMap<>(statement.getCustomPayload());
-      existingMap.put(
-          this.customPayloadKey, ByteBuffer.wrap(nodeRequestId.getBytes(StandardCharsets.UTF_8)));
-      statement = statement.setCustomPayload(existingMap);
+      customPayload =
+          NullAllowingImmutableMap.<String, ByteBuffer>builder()
+              .putAll(customPayload)
+              .put(
+                  this.customPayloadKey,
+                  ByteBuffer.wrap(nodeRequestId.getBytes(StandardCharsets.UTF_8)))
+              .build();
     }
     Node node = retriedNode;
     DriverChannel channel = null;
@@ -304,7 +305,7 @@ public class CqlRequestHandler implements Throttled {
               nodeRequestId);
       Message message = Conversions.toMessage(statement, executionProfile, context);
       channel
-          .write(message, statement.isTracing(), statement.getCustomPayload(), nodeResponseCallback)
+          .write(message, statement.isTracing(), customPayload, nodeResponseCallback)
           .addListener(nodeResponseCallback);
     }
   }

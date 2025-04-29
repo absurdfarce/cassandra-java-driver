@@ -320,11 +320,8 @@ public abstract class SessionBuilder<SelfT extends SessionBuilder, SessionT> {
   }
 
   /**
-   * Registers a distributed trace ID generator The driver will use the distributed trace ID in the
+   * Registers a distributed trace ID generator. The driver will use the distributed trace ID in the
    * logs So that users can correlate logs about the same request from different loggers.
-   *
-   * @param distributedTraceIdGenerator
-   * @return
    */
   @NonNull
   public SelfT withDistributedTraceIdGenerator(
@@ -332,6 +329,7 @@ public abstract class SessionBuilder<SelfT extends SessionBuilder, SessionT> {
     this.programmaticArgumentsBuilder.withDistributedTraceIdGenerator(distributedTraceIdGenerator);
     return self;
   }
+
   /**
    * Registers an authentication provider to use with the session.
    *
