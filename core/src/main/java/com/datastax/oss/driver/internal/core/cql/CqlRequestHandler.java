@@ -44,7 +44,7 @@ import com.datastax.oss.driver.api.core.servererrors.UnavailableException;
 import com.datastax.oss.driver.api.core.servererrors.WriteTimeoutException;
 import com.datastax.oss.driver.api.core.session.throttling.RequestThrottler;
 import com.datastax.oss.driver.api.core.session.throttling.Throttled;
-import com.datastax.oss.driver.api.core.tracker.DistributedTraceIdGenerator;
+import com.datastax.oss.driver.api.core.tracker.RequestIdGenerator;
 import com.datastax.oss.driver.api.core.tracker.RequestTracker;
 import com.datastax.oss.driver.internal.core.adminrequest.ThrottledAdminRequestHandler;
 import com.datastax.oss.driver.internal.core.adminrequest.UnexpectedResponseException;
@@ -128,7 +128,7 @@ public class CqlRequestHandler implements Throttled {
   private final List<NodeResponseCallback> inFlightCallbacks;
   private final RequestThrottler throttler;
   private final RequestTracker requestTracker;
-  private final DistributedTraceIdGenerator distributedTraceIdGenerator;
+  private final RequestIdGenerator requestIdGenerator;
   private final SessionMetricUpdater sessionMetricUpdater;
   private final DriverExecutionProfile executionProfile;
 
@@ -144,10 +144,9 @@ public class CqlRequestHandler implements Throttled {
       String sessionLogPrefix) {
 
     this.startTimeNanos = System.nanoTime();
-    this.distributedTraceIdGenerator = context.getDistributedTraceIdGenerator();
+    this.requestIdGenerator = context.getRequestIdGenerator();
     this.logPrefix =
-        this.distributedTraceIdGenerator.getSessionRequestId(
-            statement, sessionLogPrefix, this.hashCode());
+        this.requestIdGenerator.getSessionRequestId(statement, sessionLogPrefix, this.hashCode());
     LOG.trace("[{}] Creating new handler for request {}", logPrefix, statement);
 
     this.initialStatement = statement;
@@ -180,8 +179,7 @@ public class CqlRequestHandler implements Throttled {
     this.executionProfile = Conversions.resolveExecutionProfile(initialStatement, context);
 
     this.customPayloadKey =
-        this.executionProfile.getString(
-            DefaultDriverOption.DISTRIBUTED_TRACE_ID_CUSTOM_PAYLOAD_KEY);
+        this.executionProfile.getString(DefaultDriverOption.REQUEST_ID_CUSTOM_PAYLOAD_KEY);
 
     Duration timeout = Conversions.resolveRequestTimeout(statement, executionProfile);
     this.scheduledTimeout = scheduleTimeout(timeout);
@@ -262,17 +260,17 @@ public class CqlRequestHandler implements Throttled {
       return;
     }
     String nodeRequestId =
-        this.distributedTraceIdGenerator.getNodeRequestId(
-            statement, logPrefix, currentExecutionIndex);
-    Map<String, ByteBuffer> customPayload = statement.getCustomPayload();
+        this.requestIdGenerator.getNodeRequestId(statement, logPrefix, currentExecutionIndex);
     if (!this.customPayloadKey.isEmpty()) {
-      customPayload =
+      Map<String, ByteBuffer> customPayload =
           NullAllowingImmutableMap.<String, ByteBuffer>builder()
-              .putAll(customPayload)
+              .putAll(statement.getCustomPayload())
               .put(
                   this.customPayloadKey,
                   ByteBuffer.wrap(nodeRequestId.getBytes(StandardCharsets.UTF_8)))
               .build();
+      // TODO: we are creating a new statement object for every request. We should optimize this.
+      statement = statement.setCustomPayload(customPayload);
     }
     Node node = retriedNode;
     DriverChannel channel = null;
@@ -305,7 +303,7 @@ public class CqlRequestHandler implements Throttled {
               nodeRequestId);
       Message message = Conversions.toMessage(statement, executionProfile, context);
       channel
-          .write(message, statement.isTracing(), customPayload, nodeResponseCallback)
+          .write(message, statement.isTracing(), statement.getCustomPayload(), nodeResponseCallback)
           .addListener(nodeResponseCallback);
     }
   }

@@ -281,17 +281,14 @@ public class TypedDriverOption<ValueT> {
       new TypedDriverOption<>(
           DefaultDriverOption.REQUEST_TRACKER_CLASSES, GenericType.listOf(String.class));
 
-  /** The class of a session-wide component that generates distributed trace IDs. */
-  public static final TypedDriverOption<String> DISTRIBUTED_TRACE_ID_GENERATOR_CLASS =
-      new TypedDriverOption<>(
-          DefaultDriverOption.DISTRIBUTED_TRACE_ID_GENERATOR_CLASS, GenericType.STRING);
+  /** The class of a session-wide component that generates request IDs. */
+  public static final TypedDriverOption<String> REQUEST_ID_GENERATOR_CLASS =
+      new TypedDriverOption<>(DefaultDriverOption.REQUEST_ID_GENERATOR_CLASS, GenericType.STRING);
 
-  /**
-   * If not empty, the driver will write the distributed trace ID to this key in the custom payload
-   */
-  public static final TypedDriverOption<String> DISTRIBUTED_TRACE_ID_CUSTOM_PAYLOAD_KEY =
+  /** If not empty, the driver will write the node request ID to this key in the custom payload */
+  public static final TypedDriverOption<String> REQUEST_ID_CUSTOM_PAYLOAD_KEY =
       new TypedDriverOption<>(
-          DefaultDriverOption.DISTRIBUTED_TRACE_ID_CUSTOM_PAYLOAD_KEY, GenericType.STRING);
+          DefaultDriverOption.REQUEST_ID_CUSTOM_PAYLOAD_KEY, GenericType.STRING);
 
   /** Whether to log successful requests. */
   public static final TypedDriverOption<Boolean> REQUEST_LOGGER_SUCCESS_ENABLED =

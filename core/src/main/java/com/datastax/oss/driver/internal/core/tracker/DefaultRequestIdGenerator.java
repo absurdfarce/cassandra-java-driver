@@ -19,31 +19,22 @@ package com.datastax.oss.driver.internal.core.tracker;
 
 import com.datastax.oss.driver.api.core.context.DriverContext;
 import com.datastax.oss.driver.api.core.session.Request;
-import com.datastax.oss.driver.api.core.tracker.DistributedTraceIdGenerator;
-import com.datastax.oss.driver.shaded.guava.common.io.BaseEncoding;
+import com.datastax.oss.driver.api.core.tracker.RequestIdGenerator;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import java.security.SecureRandom;
-import java.util.Random;
 
-public class W3CContextDistributedTraceIdGenerator implements DistributedTraceIdGenerator {
-  Random random = new SecureRandom();
-  BaseEncoding baseEncoding = BaseEncoding.base16().lowerCase();
+public class DefaultRequestIdGenerator implements RequestIdGenerator {
 
-  public W3CContextDistributedTraceIdGenerator(DriverContext context) {}
+  public DefaultRequestIdGenerator(DriverContext context) {}
 
   @Override
   public String getSessionRequestId(
       @NonNull Request statement, @NonNull String sessionName, int hashCode) {
-    byte[] bytes = new byte[16];
-    random.nextBytes(bytes);
-    return baseEncoding.encode(bytes);
+    return sessionName + "|" + hashCode;
   }
 
   @Override
   public String getNodeRequestId(
       @NonNull Request statement, @NonNull String sessionRequestId, int executionCount) {
-    byte[] bytes = new byte[8];
-    random.nextBytes(bytes);
-    return String.format("00-%s-%s-00", sessionRequestId, baseEncoding.encode(bytes));
+    return sessionRequestId + "|" + executionCount;
   }
 }

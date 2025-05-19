@@ -23,7 +23,7 @@ import com.datastax.oss.driver.api.core.metadata.Node;
 import com.datastax.oss.driver.api.core.metadata.NodeStateListener;
 import com.datastax.oss.driver.api.core.metadata.schema.SchemaChangeListener;
 import com.datastax.oss.driver.api.core.ssl.SslEngineFactory;
-import com.datastax.oss.driver.api.core.tracker.DistributedTraceIdGenerator;
+import com.datastax.oss.driver.api.core.tracker.RequestIdGenerator;
 import com.datastax.oss.driver.api.core.tracker.RequestTracker;
 import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
 import com.datastax.oss.driver.api.core.type.codec.registry.MutableCodecRegistry;
@@ -60,7 +60,7 @@ public class ProgrammaticArguments {
   private final NodeStateListener nodeStateListener;
   private final SchemaChangeListener schemaChangeListener;
   private final RequestTracker requestTracker;
-  private final DistributedTraceIdGenerator distributedTraceIdGenerator;
+  private final RequestIdGenerator requestIdGenerator;
   private final Map<String, String> localDatacenters;
   private final Map<String, Predicate<Node>> nodeFilters;
   private final Map<String, NodeDistanceEvaluator> nodeDistanceEvaluators;
@@ -79,7 +79,7 @@ public class ProgrammaticArguments {
       @Nullable NodeStateListener nodeStateListener,
       @Nullable SchemaChangeListener schemaChangeListener,
       @Nullable RequestTracker requestTracker,
-      @Nullable DistributedTraceIdGenerator distributedTraceIdGenerator,
+      @Nullable RequestIdGenerator requestIdGenerator,
       @NonNull Map<String, String> localDatacenters,
       @NonNull Map<String, Predicate<Node>> nodeFilters,
       @NonNull Map<String, NodeDistanceEvaluator> nodeDistanceEvaluators,
@@ -97,7 +97,7 @@ public class ProgrammaticArguments {
     this.nodeStateListener = nodeStateListener;
     this.schemaChangeListener = schemaChangeListener;
     this.requestTracker = requestTracker;
-    this.distributedTraceIdGenerator = distributedTraceIdGenerator;
+    this.requestIdGenerator = requestIdGenerator;
     this.localDatacenters = localDatacenters;
     this.nodeFilters = nodeFilters;
     this.nodeDistanceEvaluators = nodeDistanceEvaluators;
@@ -133,8 +133,8 @@ public class ProgrammaticArguments {
   }
 
   @Nullable
-  public DistributedTraceIdGenerator getDistributedTraceIdGenerator() {
-    return distributedTraceIdGenerator;
+  public RequestIdGenerator getRequestIdGenerator() {
+    return requestIdGenerator;
   }
 
   @NonNull
@@ -205,7 +205,7 @@ public class ProgrammaticArguments {
     private NodeStateListener nodeStateListener;
     private SchemaChangeListener schemaChangeListener;
     private RequestTracker requestTracker;
-    private DistributedTraceIdGenerator distributedTraceIdGenerator;
+    private RequestIdGenerator requestIdGenerator;
     private ImmutableMap.Builder<String, String> localDatacentersBuilder = ImmutableMap.builder();
     private final ImmutableMap.Builder<String, Predicate<Node>> nodeFiltersBuilder =
         ImmutableMap.builder();
@@ -305,9 +305,8 @@ public class ProgrammaticArguments {
     }
 
     @NonNull
-    public Builder withDistributedTraceIdGenerator(
-        @Nullable DistributedTraceIdGenerator distributedTraceIdGenerator) {
-      this.distributedTraceIdGenerator = distributedTraceIdGenerator;
+    public Builder withRequestIdGenerator(@Nullable RequestIdGenerator requestIdGenerator) {
+      this.requestIdGenerator = requestIdGenerator;
       return this;
     }
 
@@ -434,7 +433,7 @@ public class ProgrammaticArguments {
           nodeStateListener,
           schemaChangeListener,
           requestTracker,
-          distributedTraceIdGenerator,
+          requestIdGenerator,
           localDatacentersBuilder.build(),
           nodeFiltersBuilder.build(),
           nodeDistanceEvaluatorsBuilder.build(),

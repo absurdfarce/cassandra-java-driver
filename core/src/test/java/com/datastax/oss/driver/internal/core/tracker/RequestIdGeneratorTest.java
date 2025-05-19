@@ -27,14 +27,14 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.Strict.class)
-public class DistributedTraceIdGeneratorTest {
+public class RequestIdGeneratorTest {
   @Mock private InternalDriverContext context;
   @Mock private Statement<?> statement;
 
   @Test
   public void default_generator_should_generate() {
     // given
-    DefaultDistributedTraceIdGenerator generator = new DefaultDistributedTraceIdGenerator(context);
+    DefaultRequestIdGenerator generator = new DefaultRequestIdGenerator(context);
     // when
     String sessionRequestId = generator.getSessionRequestId(statement, "sessionName", 123);
     String nodeRequestId = generator.getNodeRequestId(statement, sessionRequestId, 1);
@@ -46,7 +46,7 @@ public class DistributedTraceIdGeneratorTest {
   @Test
   public void uuid_generator_should_generate() {
     // given
-    UuidDistributedTraceIdGenerator generator = new UuidDistributedTraceIdGenerator(context);
+    UuidRequestIdGenerator generator = new UuidRequestIdGenerator(context);
     // when
     String sessionRequestId = generator.getSessionRequestId(statement, "sessionName", 123);
     String nodeRequestId = generator.getNodeRequestId(statement, sessionRequestId, 1);
@@ -58,8 +58,7 @@ public class DistributedTraceIdGeneratorTest {
   @Test
   public void w3c_generator_should_generate() {
     // given
-    W3CContextDistributedTraceIdGenerator generator =
-        new W3CContextDistributedTraceIdGenerator(context);
+    W3CContextRequestIdGenerator generator = new W3CContextRequestIdGenerator(context);
     // when
     String sessionRequestId = generator.getSessionRequestId(statement, "sessionName", 123);
     String nodeRequestId = generator.getNodeRequestId(statement, sessionRequestId, 1);

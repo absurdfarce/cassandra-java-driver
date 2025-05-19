@@ -20,7 +20,7 @@ package com.datastax.oss.driver.api.core.tracker;
 import com.datastax.oss.driver.api.core.session.Request;
 import edu.umd.cs.findbugs.annotations.NonNull;
 
-public interface DistributedTraceIdGenerator {
+public interface RequestIdGenerator {
   /**
    * Generates a unique identifier for the session request. This will be the identifier for the
    * entire `session.execute()` call. This identifier will be added to logs, and propagated to

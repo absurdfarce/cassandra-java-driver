@@ -35,7 +35,7 @@ import com.datastax.oss.driver.api.core.metadata.NodeStateListener;
 import com.datastax.oss.driver.api.core.metadata.schema.SchemaChangeListener;
 import com.datastax.oss.driver.api.core.ssl.ProgrammaticSslEngineFactory;
 import com.datastax.oss.driver.api.core.ssl.SslEngineFactory;
-import com.datastax.oss.driver.api.core.tracker.DistributedTraceIdGenerator;
+import com.datastax.oss.driver.api.core.tracker.RequestIdGenerator;
 import com.datastax.oss.driver.api.core.tracker.RequestTracker;
 import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
 import com.datastax.oss.driver.api.core.type.codec.registry.MutableCodecRegistry;
@@ -320,13 +320,13 @@ public abstract class SessionBuilder<SelfT extends SessionBuilder, SessionT> {
   }
 
   /**
-   * Registers a distributed trace ID generator. The driver will use the distributed trace ID in the
-   * logs So that users can correlate logs about the same request from different loggers.
+   * Registers a request ID generator. The driver will use the generated ID in the logs and
+   * optionally add to the custom payload so that users can correlate logs about the same request
+   * from the Cassandra side.
    */
   @NonNull
-  public SelfT withDistributedTraceIdGenerator(
-      @NonNull DistributedTraceIdGenerator distributedTraceIdGenerator) {
-    this.programmaticArgumentsBuilder.withDistributedTraceIdGenerator(distributedTraceIdGenerator);
+  public SelfT withRequestIdGenerator(@NonNull RequestIdGenerator requestIdGenerator) {
+    this.programmaticArgumentsBuilder.withRequestIdGenerator(requestIdGenerator);
     return self;
   }
 

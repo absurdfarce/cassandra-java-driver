@@ -17,48 +17,53 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-## Distributed tracing
+## Request Id
 
 ### Quick overview
 
 Users can inject an identifier for each individual CQL request, and such ID can be written in to the custom payload to 
 correlate a request across the driver and the Apache Cassandra server.
 
-* Inject ID generator: set the desired `DistributedTraceIdGenerator` in `advanced.distributed-tracing.id-generator.class`. 
-  The default implementation generates ID as `{session_name}|{hash_code}|{execution_count}`.
-* Add ID to custom payload: disabled by default. Set the desired key in `advanced.distributed-tracing.custom-payload-with-key`, 
+A request ID generator needs to generate both:
+- Session request ID: an identifier for an entire session.execute() call
+- Node request ID: an identifier for the execution of a CQL statement against a particular node. There can be one or more node requests for a single session request, due to retries or speculative executions.
+
+Usage:
+* Inject ID generator: set the desired `RequestIdGenerator` in `advanced.request-id.generator.class`. 
+  The default implementation generates the session request ID as `{session_name}|{hash_code}`, and node request ID as `{session_name}|{hash_code}|{execution_count}`.
+* Add ID to custom payload: disabled by default. Set the desired key in `advanced.request-id.custom-payload-with-key`, 
   then the driver will add the generated ID to the custom payload with the specified key.
 
-### Distributed Trace Id Generator Configuration
+### Request Id Generator Configuration
 
-Distributed trace ID generator can be declared in the [configuration](../configuration/) as follows:
+Request ID generator can be declared in the [configuration](../configuration/) as follows:
 
 ```
-datastax-java-driver.advanced.distributed-tracing.id-generator {
+datastax-java-driver.advanced.request-id.generator {
   class = com.example.app.MyGenerator
 }
 ```
 
-To register your own trackers, specify the name of a class
-that implements `DistributedTraceIdGenerator`.
+To register your own request ID generator, specify the name of the class
+that implements `RequestIdGenerator`.
 
-By default, the build-in implementation `DefaultDistributedTraceIdGenerator` is used. It generates the ID as
+By default, the build-in implementation `DefaultRequestIdGenerator` is used. It generates the ID as
 `{session_name}|{hash_code}|{execution_count}`. Note that this ID is not guaranteed to be unique.
-Other built-in implementations include `UUIDDistributedTraceIdGenerator` and `W3CContextDistributedTraceIdGenerator`.
+Other built-in implementations include `UUIDRequestIdGenerator` and `W3CContextRequestIdGenerator`.
 
 The generated ID will be added to the log message of `CqlRequestHandler`, and propagated to the request trackers.
 
 ### Custom Payload Configuration
 
-Users can opt in to add the generated ID to the custom payload to achieve request end-to-end tracing.
+Users can opt in to add the generated node request ID to the custom payload to achieve request end-to-end tracing.
 Custom payload is a map of string to `ByteBuffer` pairs, and the driver will add the generated ID to the custom payload with the specified key.
 
 ```
-datastax-java-driver.advanced.distributed-tracing{
-  custom-payload-with-key = my-trace-key
+datastax-java-driver.advanced.request-id{
+  custom-payload-with-key = my-request-id
 }
 ```
 
-Users can then run Apache Cassandra with customized query handler to extract the trace ID from the custom payload, to achieve end-to-end tracing.
+Users can then run Apache Cassandra with customized query handler to extract the request ID from the custom payload, to achieve end-to-end tracing.
 
 When this key is set to an empty string (default), the driver will not add the ID to the custom payload.

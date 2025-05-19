@@ -34,7 +34,7 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
 @Category(ParallelizableTests.class)
-public class DistributedTraceIdGeneratorIT {
+public class RequestIdGeneratorIT {
   private CcmRule ccmRule = CcmRule.getInstance();
 
   @Rule public TestRule chain = RuleChain.outerRule(ccmRule);
@@ -43,7 +43,7 @@ public class DistributedTraceIdGeneratorIT {
   public void should_write_default_id_to_custom_payload_with_key() {
     DriverConfigLoader loader =
         SessionUtils.configLoaderBuilder()
-            .withString(DefaultDriverOption.DISTRIBUTED_TRACE_ID_CUSTOM_PAYLOAD_KEY, "trace_key")
+            .withString(DefaultDriverOption.REQUEST_ID_CUSTOM_PAYLOAD_KEY, "trace_key")
             .build();
     try (CqlSession session = SessionUtils.newSession(ccmRule, loader)) {
       String query = "SELECT * FROM system.local";
@@ -57,10 +57,8 @@ public class DistributedTraceIdGeneratorIT {
   public void should_write_uuid_to_custom_payload_with_key() {
     DriverConfigLoader loader =
         SessionUtils.configLoaderBuilder()
-            .withString(
-                DefaultDriverOption.DISTRIBUTED_TRACE_ID_GENERATOR_CLASS,
-                "UuidDistributedTraceIdGenerator")
-            .withString(DefaultDriverOption.DISTRIBUTED_TRACE_ID_CUSTOM_PAYLOAD_KEY, "trace_key")
+            .withString(DefaultDriverOption.REQUEST_ID_GENERATOR_CLASS, "UuidRequestIdGenerator")
+            .withString(DefaultDriverOption.REQUEST_ID_CUSTOM_PAYLOAD_KEY, "trace_key")
             .build();
     try (CqlSession session = SessionUtils.newSession(ccmRule, loader)) {
       String query = "SELECT * FROM system.local";
@@ -75,9 +73,8 @@ public class DistributedTraceIdGeneratorIT {
     DriverConfigLoader loader =
         SessionUtils.configLoaderBuilder()
             .withString(
-                DefaultDriverOption.DISTRIBUTED_TRACE_ID_GENERATOR_CLASS,
-                "W3CContextDistributedTraceIdGenerator")
-            .withString(DefaultDriverOption.DISTRIBUTED_TRACE_ID_CUSTOM_PAYLOAD_KEY, "trace_key")
+                DefaultDriverOption.REQUEST_ID_GENERATOR_CLASS, "W3CContextRequestIdGenerator")
+            .withString(DefaultDriverOption.REQUEST_ID_CUSTOM_PAYLOAD_KEY, "trace_key")
             .build();
     try (CqlSession session = SessionUtils.newSession(ccmRule, loader)) {
       String query = "SELECT * FROM system.local";
