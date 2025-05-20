@@ -23,10 +23,14 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import com.datastax.oss.driver.api.core.cql.ResultSet;
+import com.datastax.oss.driver.api.core.session.Request;
+import com.datastax.oss.driver.api.core.tracker.RequestIdGenerator;
 import com.datastax.oss.driver.api.testinfra.ccm.CcmRule;
 import com.datastax.oss.driver.api.testinfra.session.SessionUtils;
 import com.datastax.oss.driver.categories.ParallelizableTests;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -81,6 +85,40 @@ public class RequestIdGeneratorIT {
       ResultSet rs = session.execute(query);
       ByteBuffer id = rs.getExecutionInfo().getRequest().getCustomPayload().get("trace_key");
       assertThat(id.remaining()).isEqualTo(55);
+    }
+  }
+
+  @Test
+  public void should_use_customized_request_id_generator() {
+    DriverConfigLoader loader =
+        SessionUtils.configLoaderBuilder()
+            .withString(DefaultDriverOption.REQUEST_ID_CUSTOM_PAYLOAD_KEY, "trace_key")
+            .build();
+    RequestIdGenerator myRequestIdGenerator =
+        new RequestIdGenerator() {
+          @Override
+          public String getSessionRequestId(
+              @NonNull Request statement, @NonNull String sessionName, int hashCode) {
+            return "123";
+          }
+
+          @Override
+          public String getNodeRequestId(
+              @NonNull Request statement, @NonNull String sessionRequestId, int executionCount) {
+            return "456";
+          }
+        };
+    try (CqlSession session =
+        (CqlSession)
+            SessionUtils.baseBuilder()
+                .addContactEndPoints(ccmRule.getContactPoints())
+                .withRequestIdGenerator(myRequestIdGenerator)
+                .withConfigLoader(loader)
+                .build()) {
+      String query = "SELECT * FROM system.local";
+      ResultSet rs = session.execute(query);
+      ByteBuffer id = rs.getExecutionInfo().getRequest().getCustomPayload().get("trace_key");
+      assertThat(id).isEqualTo(ByteBuffer.wrap("456".getBytes(StandardCharsets.UTF_8)));
     }
   }
 

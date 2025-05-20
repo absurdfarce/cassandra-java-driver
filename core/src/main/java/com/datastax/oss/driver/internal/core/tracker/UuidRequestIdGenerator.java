@@ -26,12 +26,17 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 public class UuidRequestIdGenerator implements RequestIdGenerator {
   public UuidRequestIdGenerator(DriverContext context) {}
 
+  /** Generates a random v4 UUID. */
   @Override
   public String getSessionRequestId(
       @NonNull Request statement, @NonNull String sessionName, int hashCode) {
     return Uuids.random().toString();
   }
 
+  /**
+   * {session-request-id}-{random-uuid} All node requests for a session request will have the same
+   * session request id
+   */
   @Override
   public String getNodeRequestId(
       @NonNull Request statement, @NonNull String sessionRequestId, int executionCount) {

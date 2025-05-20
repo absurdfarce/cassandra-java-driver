@@ -31,6 +31,7 @@ public class W3CContextRequestIdGenerator implements RequestIdGenerator {
 
   public W3CContextRequestIdGenerator(DriverContext context) {}
 
+  /** Random 16 bytes, e.g. "4bf92f3577b34da6a3ce929d0e0e4736" */
   @Override
   public String getSessionRequestId(
       @NonNull Request statement, @NonNull String sessionName, int hashCode) {
@@ -39,6 +40,12 @@ public class W3CContextRequestIdGenerator implements RequestIdGenerator {
     return baseEncoding.encode(bytes);
   }
 
+  /**
+   * Following the format of W3C "traceparent" spec,
+   * https://www.w3.org/TR/trace-context/#traceparent-header-field-values e.g.
+   * "00-4bf92f3577b34da6a3ce929d0e0e4736-a3ce929d0e0e4736-01" All node requests in the same session
+   * request share the same "trace-id" field value
+   */
   @Override
   public String getNodeRequestId(
       @NonNull Request statement, @NonNull String sessionRequestId, int executionCount) {
