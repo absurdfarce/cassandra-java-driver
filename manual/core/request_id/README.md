@@ -21,7 +21,7 @@ under the License.
 
 ### Quick overview
 
-Users can inject an identifier for each individual CQL request, and such ID can be written in to the custom payload to 
+Users can inject an identifier for each individual CQL request, and such ID can be written in to the [custom payload](https://github.com/apache/cassandra/blob/trunk/doc/native_protocol_v5.spec) to 
 correlate a request across the driver and the Apache Cassandra server.
 
 A request ID generator needs to generate both:
@@ -30,7 +30,9 @@ A request ID generator needs to generate both:
 
 Usage:
 * Inject ID generator: set the desired `RequestIdGenerator` in `advanced.request-id.generator.class`. 
-  The default implementation generates the session request ID as `{session_name}|{hash_code}`, and node request ID as `{session_name}|{hash_code}|{execution_count}`.
+  The default implementation generates the session request ID as `{session_name}|{hash_code}`, and node request ID as `{session_name}|{hash_code}|{execution_count}`, 
+  where "hash_code" is the hash code of the `CqlRequestHandler` object, and "execution_count" is the zero-based index of the node request in the session request.
+  For example, if there is a retry or speculative execution right after the first node request, the second node request will have the ID `{session_name}|{hash_code}|1`.
 * Add ID to custom payload: disabled by default. Set the desired key in `advanced.request-id.custom-payload-with-key`, 
   then the driver will add the generated ID to the custom payload with the specified key.
 
