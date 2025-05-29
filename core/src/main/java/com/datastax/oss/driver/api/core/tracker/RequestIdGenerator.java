@@ -21,7 +21,6 @@ import com.datastax.oss.driver.api.core.cql.Statement;
 import com.datastax.oss.driver.api.core.session.Request;
 import com.datastax.oss.protocol.internal.util.collection.NullAllowingImmutableMap;
 import edu.umd.cs.findbugs.annotations.NonNull;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -33,11 +32,9 @@ public interface RequestIdGenerator {
    * request trackers.
    *
    * @param statement the statement to be executed
-   * @param sessionName the name of the session
-   * @param hashCode the hashcode of the CqlRequestHandler
    * @return a unique identifier for the session request
    */
-  String getSessionRequestId(@NonNull Request statement, @NonNull String sessionName, int hashCode);
+  String getSessionRequestId(@NonNull Request statement);
 
   /**
    * Generates a unique identifier for the node request. This will be the identifier for the CQL
@@ -54,16 +51,13 @@ public interface RequestIdGenerator {
   String getNodeRequestId(
       @NonNull Request statement, @NonNull String sessionRequestId, int executionCount);
 
-
   default Statement<?> getDecoratedStatement(
       @NonNull Statement<?> statement, @NonNull String nodeRequestId) {
-      Map<String, ByteBuffer> customPayload =
-              NullAllowingImmutableMap.<String, ByteBuffer>builder()
-                      .putAll(statement.getCustomPayload())
-                      .put(
-                              "request-id",
-                              ByteBuffer.wrap(nodeRequestId.getBytes(StandardCharsets.UTF_8)))
-                      .build();
-      return statement.setCustomPayload(customPayload);
+    Map<String, ByteBuffer> customPayload =
+        NullAllowingImmutableMap.<String, ByteBuffer>builder()
+            .putAll(statement.getCustomPayload())
+            .put("request-id", ByteBuffer.wrap(nodeRequestId.getBytes(StandardCharsets.UTF_8)))
+            .build();
+    return statement.setCustomPayload(customPayload);
   }
 }

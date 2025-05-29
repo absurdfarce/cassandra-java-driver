@@ -23,14 +23,17 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import com.datastax.oss.driver.api.core.cql.ResultSet;
+import com.datastax.oss.driver.api.core.cql.Statement;
 import com.datastax.oss.driver.api.core.session.Request;
 import com.datastax.oss.driver.api.core.tracker.RequestIdGenerator;
 import com.datastax.oss.driver.api.testinfra.ccm.CcmRule;
 import com.datastax.oss.driver.api.testinfra.session.SessionUtils;
 import com.datastax.oss.driver.categories.ParallelizableTests;
+import com.datastax.oss.protocol.internal.util.collection.NullAllowingImmutableMap;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -44,30 +47,15 @@ public class RequestIdGeneratorIT {
   @Rule public TestRule chain = RuleChain.outerRule(ccmRule);
 
   @Test
-  public void should_write_default_id_to_custom_payload_with_key() {
-    DriverConfigLoader loader =
-        SessionUtils.configLoaderBuilder()
-            .withString(DefaultDriverOption.REQUEST_ID_CUSTOM_PAYLOAD_KEY, "trace_key")
-            .build();
-    try (CqlSession session = SessionUtils.newSession(ccmRule, loader)) {
-      String query = "SELECT * FROM system.local";
-      ResultSet rs = session.execute(query);
-      assertThat(rs.getExecutionInfo().getRequest().getCustomPayload().get("trace_key"))
-          .isNotNull();
-    }
-  }
-
-  @Test
   public void should_write_uuid_to_custom_payload_with_key() {
     DriverConfigLoader loader =
         SessionUtils.configLoaderBuilder()
             .withString(DefaultDriverOption.REQUEST_ID_GENERATOR_CLASS, "UuidRequestIdGenerator")
-            .withString(DefaultDriverOption.REQUEST_ID_CUSTOM_PAYLOAD_KEY, "trace_key")
             .build();
     try (CqlSession session = SessionUtils.newSession(ccmRule, loader)) {
       String query = "SELECT * FROM system.local";
       ResultSet rs = session.execute(query);
-      ByteBuffer id = rs.getExecutionInfo().getRequest().getCustomPayload().get("trace_key");
+      ByteBuffer id = rs.getExecutionInfo().getRequest().getCustomPayload().get("request-id");
       assertThat(id.remaining()).isEqualTo(73);
     }
   }
@@ -78,27 +66,21 @@ public class RequestIdGeneratorIT {
         SessionUtils.configLoaderBuilder()
             .withString(
                 DefaultDriverOption.REQUEST_ID_GENERATOR_CLASS, "W3CContextRequestIdGenerator")
-            .withString(DefaultDriverOption.REQUEST_ID_CUSTOM_PAYLOAD_KEY, "trace_key")
             .build();
     try (CqlSession session = SessionUtils.newSession(ccmRule, loader)) {
       String query = "SELECT * FROM system.local";
       ResultSet rs = session.execute(query);
-      ByteBuffer id = rs.getExecutionInfo().getRequest().getCustomPayload().get("trace_key");
+      ByteBuffer id = rs.getExecutionInfo().getRequest().getCustomPayload().get("request-id");
       assertThat(id.remaining()).isEqualTo(55);
     }
   }
 
   @Test
   public void should_use_customized_request_id_generator() {
-    DriverConfigLoader loader =
-        SessionUtils.configLoaderBuilder()
-            .withString(DefaultDriverOption.REQUEST_ID_CUSTOM_PAYLOAD_KEY, "trace_key")
-            .build();
     RequestIdGenerator myRequestIdGenerator =
         new RequestIdGenerator() {
           @Override
-          public String getSessionRequestId(
-              @NonNull Request statement, @NonNull String sessionName, int hashCode) {
+          public String getSessionRequestId(@NonNull Request statement) {
             return "123";
           }
 
@@ -107,13 +89,25 @@ public class RequestIdGeneratorIT {
               @NonNull Request statement, @NonNull String sessionRequestId, int executionCount) {
             return "456";
           }
+
+          @Override
+          public Statement<?> getDecoratedStatement(
+              @NonNull Statement<?> statement, @NonNull String nodeRequestId) {
+            Map<String, ByteBuffer> customPayload =
+                NullAllowingImmutableMap.<String, ByteBuffer>builder()
+                    .putAll(statement.getCustomPayload())
+                    .put(
+                        "trace_key",
+                        ByteBuffer.wrap(nodeRequestId.getBytes(StandardCharsets.UTF_8)))
+                    .build();
+            return statement.setCustomPayload(customPayload);
+          }
         };
     try (CqlSession session =
         (CqlSession)
             SessionUtils.baseBuilder()
                 .addContactEndPoints(ccmRule.getContactPoints())
                 .withRequestIdGenerator(myRequestIdGenerator)
-                .withConfigLoader(loader)
                 .build()) {
       String query = "SELECT * FROM system.local";
       ResultSet rs = session.execute(query);

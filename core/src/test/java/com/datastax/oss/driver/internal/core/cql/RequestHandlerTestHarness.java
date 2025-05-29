@@ -114,8 +114,6 @@ public class RequestHandlerTestHarness implements AutoCloseable {
     when(defaultProfile.getBoolean(DefaultDriverOption.REQUEST_DEFAULT_IDEMPOTENCE))
         .thenReturn(builder.defaultIdempotence);
     when(defaultProfile.getBoolean(DefaultDriverOption.PREPARE_ON_ALL_NODES)).thenReturn(true);
-    when(defaultProfile.getString(DefaultDriverOption.REQUEST_ID_CUSTOM_PAYLOAD_KEY))
-        .thenReturn("");
 
     when(config.getDefaultProfile()).thenReturn(defaultProfile);
     when(context.getConfig()).thenReturn(config);

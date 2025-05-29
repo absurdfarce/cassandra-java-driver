@@ -222,7 +222,7 @@ public class DefaultDriverContext implements InternalDriverContext {
   private final LazyReference<NodeStateListener> nodeStateListenerRef;
   private final LazyReference<SchemaChangeListener> schemaChangeListenerRef;
   private final LazyReference<RequestTracker> requestTrackerRef;
-  private final LazyReference<RequestIdGenerator> requestIdGeneratorRef;
+  private final LazyReference<Optional<RequestIdGenerator>> requestIdGeneratorRef;
   private final LazyReference<Optional<AuthProvider>> authProviderRef;
   private final LazyReference<List<LifecycleListener>> lifecycleListenersRef =
       new LazyReference<>("lifecycleListeners", this::buildLifecycleListeners, cycleDetector);
@@ -716,20 +716,15 @@ public class DefaultDriverContext implements InternalDriverContext {
     }
   }
 
-  protected RequestIdGenerator buildRequestIdGenerator(RequestIdGenerator requestIdGenerator) {
+  protected Optional<RequestIdGenerator> buildRequestIdGenerator(
+      RequestIdGenerator requestIdGenerator) {
     return (requestIdGenerator != null)
-        ? requestIdGenerator
+        ? Optional.of(requestIdGenerator)
         : Reflection.buildFromConfig(
-                this,
-                DefaultDriverOption.REQUEST_ID_GENERATOR_CLASS,
-                RequestIdGenerator.class,
-                "com.datastax.oss.driver.internal.core.tracker")
-            .orElseThrow(
-                () ->
-                    new IllegalArgumentException(
-                        String.format(
-                            "Missing request ID generator, check your configuration (%s)",
-                            DefaultDriverOption.REQUEST_ID_GENERATOR_CLASS)));
+            this,
+            DefaultDriverOption.REQUEST_ID_GENERATOR_CLASS,
+            RequestIdGenerator.class,
+            "com.datastax.oss.driver.internal.core.tracker");
   }
 
   protected Optional<AuthProvider> buildAuthProvider(AuthProvider authProviderFromBuilder) {
@@ -998,7 +993,7 @@ public class DefaultDriverContext implements InternalDriverContext {
 
   @NonNull
   @Override
-  public RequestIdGenerator getRequestIdGenerator() {
+  public Optional<RequestIdGenerator> getRequestIdGenerator() {
     return requestIdGeneratorRef.get();
   }
 

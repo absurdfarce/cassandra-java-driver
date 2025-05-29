@@ -285,11 +285,6 @@ public class TypedDriverOption<ValueT> {
   public static final TypedDriverOption<String> REQUEST_ID_GENERATOR_CLASS =
       new TypedDriverOption<>(DefaultDriverOption.REQUEST_ID_GENERATOR_CLASS, GenericType.STRING);
 
-  /** If not empty, the driver will write the node request ID to this key in the custom payload */
-  public static final TypedDriverOption<String> REQUEST_ID_CUSTOM_PAYLOAD_KEY =
-      new TypedDriverOption<>(
-          DefaultDriverOption.REQUEST_ID_CUSTOM_PAYLOAD_KEY, GenericType.STRING);
-
   /** Whether to log successful requests. */
   public static final TypedDriverOption<Boolean> REQUEST_LOGGER_SUCCESS_ENABLED =
       new TypedDriverOption<>(

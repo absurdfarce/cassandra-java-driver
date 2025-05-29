@@ -36,7 +36,7 @@ public class RequestIdGeneratorTest {
     // given
     UuidRequestIdGenerator generator = new UuidRequestIdGenerator(context);
     // when
-    String sessionRequestId = generator.getSessionRequestId(statement, "sessionName", 123);
+    String sessionRequestId = generator.getSessionRequestId(statement);
     String nodeRequestId = generator.getNodeRequestId(statement, sessionRequestId, 1);
     // then
     // e.g. "550e8400-e29b-41d4-a716-446655440000", which is 36 characters long
@@ -51,7 +51,7 @@ public class RequestIdGeneratorTest {
     // given
     W3CContextRequestIdGenerator generator = new W3CContextRequestIdGenerator(context);
     // when
-    String sessionRequestId = generator.getSessionRequestId(statement, "sessionName", 123);
+    String sessionRequestId = generator.getSessionRequestId(statement);
     String nodeRequestId = generator.getNodeRequestId(statement, sessionRequestId, 1);
     // then
     // e.g. "4bf92f3577b34da6a3ce929d0e0e4736", which is 32 characters long

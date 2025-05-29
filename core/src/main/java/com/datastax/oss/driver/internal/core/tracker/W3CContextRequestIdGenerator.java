@@ -33,8 +33,7 @@ public class W3CContextRequestIdGenerator implements RequestIdGenerator {
 
   /** Random 16 bytes, e.g. "4bf92f3577b34da6a3ce929d0e0e4736" */
   @Override
-  public String getSessionRequestId(
-      @NonNull Request statement, @NonNull String sessionName, int hashCode) {
+  public String getSessionRequestId(@NonNull Request statement) {
     byte[] bytes = new byte[16];
     random.nextBytes(bytes);
     return baseEncoding.encode(bytes);

@@ -28,8 +28,7 @@ public class UuidRequestIdGenerator implements RequestIdGenerator {
 
   /** Generates a random v4 UUID. */
   @Override
-  public String getSessionRequestId(
-      @NonNull Request statement) {
+  public String getSessionRequestId(@NonNull Request statement) {
     return Uuids.random().toString();
   }
 
