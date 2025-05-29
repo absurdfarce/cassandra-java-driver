@@ -29,7 +29,7 @@ public class UuidRequestIdGenerator implements RequestIdGenerator {
   /** Generates a random v4 UUID. */
   @Override
   public String getSessionRequestId(
-      @NonNull Request statement, @NonNull String sessionName, int hashCode) {
+      @NonNull Request statement) {
     return Uuids.random().toString();
   }
 

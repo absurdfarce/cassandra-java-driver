@@ -32,18 +32,6 @@ public class RequestIdGeneratorTest {
   @Mock private Statement<?> statement;
 
   @Test
-  public void default_generator_should_generate() {
-    // given
-    DefaultRequestIdGenerator generator = new DefaultRequestIdGenerator(context);
-    // when
-    String sessionRequestId = generator.getSessionRequestId(statement, "sessionName", 123);
-    String nodeRequestId = generator.getNodeRequestId(statement, sessionRequestId, 1);
-    // then
-    assertThat(sessionRequestId).isEqualTo("sessionName|123");
-    assertThat(nodeRequestId).isEqualTo("sessionName|123|1");
-  }
-
-  @Test
   public void uuid_generator_should_generate() {
     // given
     UuidRequestIdGenerator generator = new UuidRequestIdGenerator(context);

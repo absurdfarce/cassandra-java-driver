@@ -142,7 +142,7 @@ public interface DriverContext extends AttachmentPoint {
 
   /** @return The driver's request ID generator; never {@code null}. */
   @NonNull
-  RequestIdGenerator getRequestIdGenerator();
+  Optional<RequestIdGenerator> getRequestIdGenerator();
 
   /** @return The driver's request throttler; never {@code null}. */
   @NonNull

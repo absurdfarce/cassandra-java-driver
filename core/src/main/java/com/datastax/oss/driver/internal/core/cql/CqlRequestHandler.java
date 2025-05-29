@@ -44,7 +44,6 @@ import com.datastax.oss.driver.api.core.servererrors.UnavailableException;
 import com.datastax.oss.driver.api.core.servererrors.WriteTimeoutException;
 import com.datastax.oss.driver.api.core.session.throttling.RequestThrottler;
 import com.datastax.oss.driver.api.core.session.throttling.Throttled;
-import com.datastax.oss.driver.api.core.tracker.RequestIdGenerator;
 import com.datastax.oss.driver.api.core.tracker.RequestTracker;
 import com.datastax.oss.driver.internal.core.adminrequest.ThrottledAdminRequestHandler;
 import com.datastax.oss.driver.internal.core.adminrequest.UnexpectedResponseException;
@@ -72,7 +71,6 @@ import com.datastax.oss.protocol.internal.response.result.SchemaChange;
 import com.datastax.oss.protocol.internal.response.result.SetKeyspace;
 import com.datastax.oss.protocol.internal.response.result.Void;
 import com.datastax.oss.protocol.internal.util.Bytes;
-import com.datastax.oss.protocol.internal.util.collection.NullAllowingImmutableMap;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.netty.handler.codec.EncoderException;
 import io.netty.util.Timeout;
@@ -80,7 +78,6 @@ import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.AbstractMap;
 import java.util.List;
@@ -128,14 +125,12 @@ public class CqlRequestHandler implements Throttled {
   private final List<NodeResponseCallback> inFlightCallbacks;
   private final RequestThrottler throttler;
   private final RequestTracker requestTracker;
-  private final RequestIdGenerator requestIdGenerator;
   private final SessionMetricUpdater sessionMetricUpdater;
   private final DriverExecutionProfile executionProfile;
 
   // The errors on the nodes that were already tried (lazily initialized on the first error).
   // We don't use a map because nodes can appear multiple times.
   private volatile List<Map.Entry<Node, Throwable>> errors;
-  private final String customPayloadKey;
 
   protected CqlRequestHandler(
       Statement<?> statement,
@@ -144,9 +139,7 @@ public class CqlRequestHandler implements Throttled {
       String sessionLogPrefix) {
 
     this.startTimeNanos = System.nanoTime();
-    this.requestIdGenerator = context.getRequestIdGenerator();
-    this.logPrefix =
-        this.requestIdGenerator.getSessionRequestId(statement, sessionLogPrefix, this.hashCode());
+    this.logPrefix = sessionLogPrefix + "|" + this.hashCode();
     LOG.trace("[{}] Creating new handler for request {}", logPrefix, statement);
 
     this.initialStatement = statement;
@@ -177,10 +170,6 @@ public class CqlRequestHandler implements Throttled {
 
     this.timer = context.getNettyOptions().getTimer();
     this.executionProfile = Conversions.resolveExecutionProfile(initialStatement, context);
-
-    this.customPayloadKey =
-        this.executionProfile.getString(DefaultDriverOption.REQUEST_ID_CUSTOM_PAYLOAD_KEY);
-
     Duration timeout = Conversions.resolveRequestTimeout(statement, executionProfile);
     this.scheduledTimeout = scheduleTimeout(timeout);
 
@@ -259,19 +248,6 @@ public class CqlRequestHandler implements Throttled {
     if (result.isDone()) {
       return;
     }
-    String nodeRequestId =
-        this.requestIdGenerator.getNodeRequestId(statement, logPrefix, currentExecutionIndex);
-    if (!this.customPayloadKey.isEmpty()) {
-      Map<String, ByteBuffer> customPayload =
-          NullAllowingImmutableMap.<String, ByteBuffer>builder()
-              .putAll(statement.getCustomPayload())
-              .put(
-                  this.customPayloadKey,
-                  ByteBuffer.wrap(nodeRequestId.getBytes(StandardCharsets.UTF_8)))
-              .build();
-      // TODO: we are creating a new statement object for every request. We should optimize this.
-      statement = statement.setCustomPayload(customPayload);
-    }
     Node node = retriedNode;
     DriverChannel channel = null;
     if (node == null || (channel = session.getChannel(node, logPrefix)) == null) {
@@ -300,7 +276,7 @@ public class CqlRequestHandler implements Throttled {
               currentExecutionIndex,
               retryCount,
               scheduleNextExecution,
-              nodeRequestId);
+              logPrefix);
       Message message = Conversions.toMessage(statement, executionProfile, context);
       channel
           .write(message, statement.isTracing(), statement.getCustomPayload(), nodeResponseCallback)
@@ -513,7 +489,7 @@ public class CqlRequestHandler implements Throttled {
       this.execution = execution;
       this.retryCount = retryCount;
       this.scheduleNextExecution = scheduleNextExecution;
-      this.logPrefix = logPrefix;
+      this.logPrefix = logPrefix + "|" + execution;
     }
 
     // this gets invoked once the write completes.

@@ -37,7 +37,6 @@ import com.datastax.oss.driver.api.core.session.Request;
 import com.datastax.oss.driver.api.core.session.Session;
 import com.datastax.oss.driver.api.core.specex.SpeculativeExecutionPolicy;
 import com.datastax.oss.driver.api.core.time.TimestampGenerator;
-import com.datastax.oss.driver.api.core.tracker.RequestIdGenerator;
 import com.datastax.oss.driver.api.core.type.codec.registry.CodecRegistry;
 import com.datastax.oss.driver.internal.core.DefaultConsistencyLevelRegistry;
 import com.datastax.oss.driver.internal.core.ProtocolFeature;
@@ -52,7 +51,6 @@ import com.datastax.oss.driver.internal.core.pool.ChannelPool;
 import com.datastax.oss.driver.internal.core.servererrors.DefaultWriteTypeRegistry;
 import com.datastax.oss.driver.internal.core.session.DefaultSession;
 import com.datastax.oss.driver.internal.core.session.throttling.PassThroughRequestThrottler;
-import com.datastax.oss.driver.internal.core.tracker.DefaultRequestIdGenerator;
 import com.datastax.oss.driver.internal.core.tracker.NoopRequestTracker;
 import com.datastax.oss.driver.internal.core.util.concurrent.CapturingTimer;
 import com.datastax.oss.driver.internal.core.util.concurrent.CapturingTimer.CapturedTimeout;
@@ -128,9 +126,6 @@ public class RequestHandlerTestHarness implements AutoCloseable {
     when(context.getLoadBalancingPolicyWrapper()).thenReturn(loadBalancingPolicyWrapper);
 
     when(context.getRetryPolicy(anyString())).thenReturn(retryPolicy);
-
-    RequestIdGenerator requestIdGenerator = new DefaultRequestIdGenerator(context);
-    when(context.getRequestIdGenerator()).thenReturn(requestIdGenerator);
 
     // Disable speculative executions by default
     when(speculativeExecutionPolicy.nextExecution(
