@@ -51,12 +51,18 @@ public interface RequestIdGenerator {
   String getNodeRequestId(
       @NonNull Request statement, @NonNull String sessionRequestId, int executionCount);
 
+  default String getCustomPayloadKey() {
+    return "request-id";
+  }
+
   default Statement<?> getDecoratedStatement(
       @NonNull Statement<?> statement, @NonNull String nodeRequestId) {
     Map<String, ByteBuffer> customPayload =
         NullAllowingImmutableMap.<String, ByteBuffer>builder()
             .putAll(statement.getCustomPayload())
-            .put("request-id", ByteBuffer.wrap(nodeRequestId.getBytes(StandardCharsets.UTF_8)))
+            .put(
+                getCustomPayloadKey(),
+                ByteBuffer.wrap(nodeRequestId.getBytes(StandardCharsets.UTF_8)))
             .build();
     return statement.setCustomPayload(customPayload);
   }

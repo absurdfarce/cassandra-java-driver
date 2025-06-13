@@ -61,7 +61,7 @@ public class RequestIdGeneratorIT {
   }
 
   @Test
-  public void should_write_w3c_context_to_custom_payload_with_key() {
+  public void should_write_default_request_id_to_custom_payload_with_key() {
     DriverConfigLoader loader =
         SessionUtils.configLoaderBuilder()
             .withString(

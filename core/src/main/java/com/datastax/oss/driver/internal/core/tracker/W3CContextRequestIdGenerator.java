@@ -31,6 +31,8 @@ public class W3CContextRequestIdGenerator implements RequestIdGenerator {
 
   public W3CContextRequestIdGenerator(DriverContext context) {}
 
+  public W3CContextRequestIdGenerator() {}
+
   /** Random 16 bytes, e.g. "4bf92f3577b34da6a3ce929d0e0e4736" */
   @Override
   public String getSessionRequestId(@NonNull Request statement) {

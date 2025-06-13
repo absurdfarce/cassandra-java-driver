@@ -48,6 +48,7 @@ import com.datastax.oss.driver.internal.core.context.DefaultDriverContext;
 import com.datastax.oss.driver.internal.core.context.InternalDriverContext;
 import com.datastax.oss.driver.internal.core.metadata.DefaultEndPoint;
 import com.datastax.oss.driver.internal.core.session.DefaultSession;
+import com.datastax.oss.driver.internal.core.tracker.W3CContextRequestIdGenerator;
 import com.datastax.oss.driver.internal.core.util.concurrent.BlockingOperation;
 import com.datastax.oss.driver.internal.core.util.concurrent.CompletableFutures;
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -873,6 +874,12 @@ public abstract class SessionBuilder<SelfT extends SessionBuilder, SessionT> {
       List<String> configContactPoints =
           defaultConfig.getStringList(DefaultDriverOption.CONTACT_POINTS, Collections.emptyList());
       if (cloudConfigInputStream != null) {
+        // override request id generator, unless user has already set it
+        if (programmaticArguments.getRequestIdGenerator() == null) {
+          programmaticArgumentsBuilder.withRequestIdGenerator(new W3CContextRequestIdGenerator());
+          LOG.debug(
+              "A secure connect bundle is provided, using W3CContextRequestIdGenerator as request ID generator.");
+        }
         if (!programmaticContactPoints.isEmpty() || !configContactPoints.isEmpty()) {
           LOG.info(
               "Both a secure connect bundle and contact points were provided. These are mutually exclusive. The contact points from the secure bundle will have priority.");
