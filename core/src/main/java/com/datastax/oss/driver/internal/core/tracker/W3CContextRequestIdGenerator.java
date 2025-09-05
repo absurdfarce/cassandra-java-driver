@@ -35,7 +35,7 @@ public class W3CContextRequestIdGenerator implements RequestIdGenerator {
 
   /** Random 16 bytes, e.g. "4bf92f3577b34da6a3ce929d0e0e4736" */
   @Override
-  public String getSessionRequestId(@NonNull Request statement) {
+  public String getParentId() {
     byte[] bytes = new byte[16];
     random.nextBytes(bytes);
     return baseEncoding.encode(bytes);
@@ -48,10 +48,9 @@ public class W3CContextRequestIdGenerator implements RequestIdGenerator {
    * request share the same "trace-id" field value
    */
   @Override
-  public String getNodeRequestId(
-      @NonNull Request statement, @NonNull String sessionRequestId, int executionCount) {
+  public String getRequestId(@NonNull Request statement, @NonNull String parentId) {
     byte[] bytes = new byte[8];
     random.nextBytes(bytes);
-    return String.format("00-%s-%s-00", sessionRequestId, baseEncoding.encode(bytes));
+    return String.format("00-%s-%s-00", parentId, baseEncoding.encode(bytes));
   }
 }

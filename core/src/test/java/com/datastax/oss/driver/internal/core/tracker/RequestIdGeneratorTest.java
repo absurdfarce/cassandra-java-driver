@@ -36,14 +36,14 @@ public class RequestIdGeneratorTest {
     // given
     UuidRequestIdGenerator generator = new UuidRequestIdGenerator(context);
     // when
-    String sessionRequestId = generator.getSessionRequestId(statement);
-    String nodeRequestId = generator.getNodeRequestId(statement, sessionRequestId, 1);
+    String parentId = generator.getParentId();
+    String requestId = generator.getRequestId(statement, parentId);
     // then
     // e.g. "550e8400-e29b-41d4-a716-446655440000", which is 36 characters long
-    assertThat(sessionRequestId.length()).isEqualTo(36);
+    assertThat(parentId.length()).isEqualTo(36);
     // e.g. "550e8400-e29b-41d4-a716-446655440000-550e8400-e29b-41d4-a716-446655440000", which is 73
     // characters long
-    assertThat(nodeRequestId.length()).isEqualTo(73);
+    assertThat(requestId.length()).isEqualTo(73);
   }
 
   @Test
@@ -51,14 +51,14 @@ public class RequestIdGeneratorTest {
     // given
     W3CContextRequestIdGenerator generator = new W3CContextRequestIdGenerator(context);
     // when
-    String sessionRequestId = generator.getSessionRequestId(statement);
-    String nodeRequestId = generator.getNodeRequestId(statement, sessionRequestId, 1);
+    String parentId = generator.getParentId();
+    String requestId = generator.getRequestId(statement, parentId);
     // then
     // e.g. "4bf92f3577b34da6a3ce929d0e0e4736", which is 32 characters long
-    assertThat(sessionRequestId.length()).isEqualTo(32);
+    assertThat(parentId.length()).isEqualTo(32);
     // According to W3C "traceparent" spec,
     // https://www.w3.org/TR/trace-context/#traceparent-header-field-values
     // e.g. "00-4bf92f3577b34da6a3ce929d0e0e4736-a3ce929d0e0e4736-01", which 55 characters long
-    assertThat(nodeRequestId.length()).isEqualTo(55);
+    assertThat(requestId.length()).isEqualTo(55);
   }
 }

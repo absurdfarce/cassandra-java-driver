@@ -28,7 +28,7 @@ public class UuidRequestIdGenerator implements RequestIdGenerator {
 
   /** Generates a random v4 UUID. */
   @Override
-  public String getSessionRequestId(@NonNull Request statement) {
+  public String getParentId() {
     return Uuids.random().toString();
   }
 
@@ -37,8 +37,7 @@ public class UuidRequestIdGenerator implements RequestIdGenerator {
    * session request id
    */
   @Override
-  public String getNodeRequestId(
-      @NonNull Request statement, @NonNull String sessionRequestId, int executionCount) {
-    return sessionRequestId + "-" + Uuids.random();
+  public String getRequestId(@NonNull Request statement, @NonNull String parentId) {
+    return parentId + "-" + Uuids.random();
   }
 }

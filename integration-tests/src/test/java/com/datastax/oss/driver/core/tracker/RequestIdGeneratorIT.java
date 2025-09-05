@@ -56,7 +56,7 @@ public class RequestIdGeneratorIT {
       String query = "SELECT * FROM system.local";
       ResultSet rs = session.execute(query);
       ByteBuffer id = rs.getExecutionInfo().getRequest().getCustomPayload().get("request-id");
-      assertThat(id.remaining()).isEqualTo(73);
+      assertThat(id.remaining()).isEqualTo(39);
     }
   }
 
@@ -71,7 +71,7 @@ public class RequestIdGeneratorIT {
       String query = "SELECT * FROM system.local";
       ResultSet rs = session.execute(query);
       ByteBuffer id = rs.getExecutionInfo().getRequest().getCustomPayload().get("request-id");
-      assertThat(id.remaining()).isEqualTo(55);
+      assertThat(id.remaining()).isEqualTo(25);
     }
   }
 
@@ -80,25 +80,22 @@ public class RequestIdGeneratorIT {
     RequestIdGenerator myRequestIdGenerator =
         new RequestIdGenerator() {
           @Override
-          public String getSessionRequestId(@NonNull Request statement) {
+          public String getParentId() {
             return "123";
           }
 
           @Override
-          public String getNodeRequestId(
-              @NonNull Request statement, @NonNull String sessionRequestId, int executionCount) {
+          public String getRequestId(@NonNull Request statement, @NonNull String parentId) {
             return "456";
           }
 
           @Override
           public Statement<?> getDecoratedStatement(
-              @NonNull Statement<?> statement, @NonNull String nodeRequestId) {
+              @NonNull Statement<?> statement, @NonNull String requestId) {
             Map<String, ByteBuffer> customPayload =
                 NullAllowingImmutableMap.<String, ByteBuffer>builder()
                     .putAll(statement.getCustomPayload())
-                    .put(
-                        "trace_key",
-                        ByteBuffer.wrap(nodeRequestId.getBytes(StandardCharsets.UTF_8)))
+                    .put("trace_key", ByteBuffer.wrap(requestId.getBytes(StandardCharsets.UTF_8)))
                     .build();
             return statement.setCustomPayload(customPayload);
           }
