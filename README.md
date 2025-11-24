@@ -73,14 +73,15 @@ See the [Cassandra error handling done right blog](https://www.datastax.com/blog
 
 ## Useful links
 
-* [Manual](manual/)
+* [Manual]
 * [API docs]
 * Bug tracking: [JIRA]
 * [Mailing list]
 * [Changelog]
 * [FAQ]
 
-[API docs]: https://docs.datastax.com/en/drivers/java/4.17
+[Manual]: https://apache.github.io/cassandra-java-driver/4.19.0/
+[API docs]: https://apache.github.io/cassandra-java-driver/4.19.0/api/
 [JIRA]: https://issues.apache.org/jira/issues/?jql=project%20%3D%20CASSJAVA%20ORDER%20BY%20key%20DESC
 [Mailing list]: https://groups.google.com/a/lists.datastax.com/forum/#!forum/java-driver-user
 [Changelog]: changelog/
