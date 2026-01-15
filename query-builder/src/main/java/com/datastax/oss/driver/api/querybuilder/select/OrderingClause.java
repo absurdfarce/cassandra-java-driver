@@ -20,8 +20,7 @@ package com.datastax.oss.driver.api.querybuilder.select;
 import com.datastax.oss.driver.api.querybuilder.CqlSnippet;
 
 /**
- * Abstract representation of an ordering clause (i.e. ORDER BY) in a CQL statement.
- * Alternate implementations may be provided if servers wind up implementing customized
- * orderings.
+ * Abstract representation of an ordering clause (i.e. ORDER BY) in a CQL statement. Alternate
+ * implementations may be provided if servers wind up implementing customized orderings.
  */
 public abstract class OrderingClause implements CqlSnippet {}

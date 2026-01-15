@@ -23,9 +23,8 @@ import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
- * Concrete implementation of {@link OrderingClause} which supports ordering by
- * the adjacent nearest-neighbor (ANN) calculation.  This usage is primarily used
- * for vector calculations.
+ * Concrete implementation of {@link OrderingClause} which supports ordering by the adjacent
+ * nearest-neighbor (ANN) calculation. This usage is primarily used for vector calculations.
  */
 public class AnnOrderingClause extends OrderingClause {
 

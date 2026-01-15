@@ -25,8 +25,8 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Map;
 
 /**
- * Concrete implementation of {@link OrderingClause} which supports ordering by
- * specified columns.  This usages is the default ORDER BY syntax for Apache Cassandra.
+ * Concrete implementation of {@link OrderingClause} which supports ordering by specified columns.
+ * This usages is the default ORDER BY syntax for Apache Cassandra.
  */
 public class ColumnsOrderingClause extends OrderingClause {
 
