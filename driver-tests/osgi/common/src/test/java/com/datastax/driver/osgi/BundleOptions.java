@@ -185,10 +185,6 @@ public class BundleOptions {
                     getVersion("jackson-databind.version")),
                 mavenBundle(
                     "com.fasterxml.jackson.core", "jackson-core", getVersion("jackson.version")),
-                mavenBundle(
-                    "com.fasterxml.jackson.core",
-                    "jackson-annotations",
-                    getVersion("jackson.version")),
                 mavenBundle("org.testng", "testng", getVersion("testng.version")),
                 systemPackages(
                     "org.testng",
