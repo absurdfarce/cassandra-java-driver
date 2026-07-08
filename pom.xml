@@ -1005,18 +1005,6 @@ limitations under the License.
                             <skipLocalStaging>true</skipLocalStaging>
                         </configuration>
                     </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
-            <id>modern-jdks</id>
-            <activation>
-                <jdk>[1.8,)</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <!-- only activate for jdk8+ since requires java 8 -->
                     <plugin>
                         <groupId>com.coveo</groupId>
                         <artifactId>fmt-maven-plugin</artifactId>
@@ -1030,39 +1018,11 @@ limitations under the License.
                             </execution>
                         </executions>
                     </plugin>
-		    <plugin>
-		      <groupId>org.apache.maven.plugins</groupId>
-		      <artifactId>maven-javadoc-plugin</artifactId>
-		      <configuration combine.self="override">
-			<doclint>none</doclint>
-		      </configuration>
-		    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
-            <id>legacy-jdks</id>
-            <activation>
-                <jdk>[,1.8)</jdk>
-            </activation>
-            <build>
-                <plugins>
                     <plugin>
-                        <!--
-                        Exclude Jdk* test classes from being run
-                        This is needed in event that code was built with JDK8
-                        and tests are ran with JDK6 or 7.
-                        Note that running CCM tests with a legacy JDK require
-                        setting two system properties: ccm.java.home and ccm.path;
-                        both should point to a valid JDK8+ installation.
-                        -->
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/jdk8/*.java</exclude>
-                                <exclude>**/Jdk8*.java</exclude>
-                            </excludes>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration combine.self="override">
+                            <doclint>none</doclint>
                         </configuration>
                     </plugin>
                 </plugins>
