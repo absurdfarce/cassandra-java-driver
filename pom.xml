@@ -65,7 +65,7 @@
         <lz4.version>1.10.1</lz4.version>
         <hdr.version>2.1.10</hdr.version>
         <jackson.version>2.20.1</jackson.version>
-        <jackson-databind.version>${jackson.version}</jackson-databind.version>
+        <jackson-annotations.version>2.20</jackson-annotations.version>
         <joda.version>2.9.9</joda.version>
         <jsr353-api.version>1.0</jsr353-api.version>
         <jsr353-ri.version>1.0.4</jsr353-ri.version>
@@ -201,7 +201,13 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson-databind.version}</version>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson-annotations.version}</version>
             </dependency>
 
             <dependency>
