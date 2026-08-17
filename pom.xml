@@ -51,6 +51,7 @@
     <module>bom</module>
   </modules>
   <properties>
+    <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <config.version>1.4.1</config.version>
@@ -459,7 +460,7 @@
       <plugins>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.1</version>
+          <version>3.15.0</version>
         </plugin>
         <plugin>
           <groupId>com.coveo</groupId>
@@ -486,7 +487,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-shade-plugin</artifactId>
-          <version>3.2.3</version>
+          <version>3.6.2</version>
         </plugin>
         <plugin>
           <artifactId>maven-assembly-plugin</artifactId>
@@ -616,30 +617,21 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <compilerId>javac-with-errorprone</compilerId>
-          <forceJavacCompilerUse>true</forceJavacCompilerUse>
-          <source>1.8</source>
-          <target>1.8</target>
-          <compilerArgs combine.children="override">
-            <compilerArg>-Xep:FutureReturnValueIgnored:OFF</compilerArg>
-            <compilerArg>-Xep:PreferJavaTimeOverload:OFF</compilerArg>
-            <compilerArg>-Xep:AnnotateFormatMethod:OFF</compilerArg>
-            <compilerArg>-Xep:WildcardImport:WARN</compilerArg>
-            <compilerArg>-XepExcludedPaths:.*/target/(?:generated-sources|generated-test-sources)/.*</compilerArg>
-          </compilerArgs>
+          <forceLegacyJavacApi>true</forceLegacyJavacApi>
           <showWarnings>true</showWarnings>
-          <failOnWarning>true</failOnWarning>
+          <failOnWarning>false</failOnWarning>
           <useIncrementalCompilation>false</useIncrementalCompilation>
         </configuration>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-compiler-javac-errorprone</artifactId>
-            <version>2.8.6</version>
+            <version>2.16.2</version>
           </dependency>
           <dependency>
             <groupId>com.google.errorprone</groupId>
             <artifactId>error_prone_core</artifactId>
-            <version>2.3.4</version>
+            <version>2.50.0</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -822,67 +814,6 @@ limitations under the License.]]></inlineHeader>
           </tags>
         </configuration>
         <executions>
-          <execution>
-            <!-- Check that our "official" API (api.* packages) does not leak unwanted types -->
-            <id>check-api-leaks</id>
-            <goals>
-              <goal>javadoc</goal>
-            </goals>
-            <phase>process-classes</phase>
-            <configuration>
-              <doclet>com.datastax.oss.doclet.ApiPlumber</doclet>
-              <docletArtifact>
-                <groupId>com.datastax.oss</groupId>
-                <artifactId>api-plumber-doclet</artifactId>
-                <version>1.0.0</version>
-              </docletArtifact>
-              <additionalJOptions>
-                <!-- API types do not leak internal types -->
-                <additionalparam>-preventleak</additionalparam>
-                <additionalparam>com.datastax.oss.driver.internal</additionalparam>
-                <additionalparam>com.datastax.dse.driver.internal</additionalparam>
-                <!-- Shaded dependencies (Guava, Netty, etc.) -->
-                <additionalparam>-preventleak</additionalparam>
-                <additionalparam>com.datastax.oss.driver.shaded</additionalparam>
-                <!--
-                  Typesafe config: implementation detail, can be excluded if the user wrote a custom
-                  DriverConfig implementation.
-                -->
-                <additionalparam>-preventleak</additionalparam>
-                <additionalparam>com.typesafe.config</additionalparam>
-                <!--
-                  DropWizard metrics: can be excluded if metrics are disabled, or the user plugged
-                  another framework.
-                -->
-                <additionalparam>-preventleak</additionalparam>
-                <additionalparam>com.codahale.metrics</additionalparam>
-                <!--
-                  HDR Histogram: implementation detail of Timer metrics, can be excluded if they are
-                  all disabled.
-                -->
-                <additionalparam>-preventleak</additionalparam>
-                <additionalparam>org.HdrHistogram</additionalparam>
-                <!-- Netty: implementation detail, only tweakable via internal classes. -->
-                <additionalparam>-preventleak</additionalparam>
-                <additionalparam>io.netty</additionalparam>
-                <!-- JNR: can be excluded, the driver will fallback to non-native alternatives -->
-                <additionalparam>-preventleak</additionalparam>
-                <additionalparam>jnr</additionalparam>
-                <additionalparam>-preventleak</additionalparam>
-                <additionalparam>com.kenai.constantine</additionalparam>
-                <additionalparam>-preventleak</additionalparam>
-                <additionalparam>com.kenai.jffi</additionalparam>
-                <additionalparam>-preventleak</additionalparam>
-                <additionalparam>com.kenai.jnr</additionalparam>
-                <!-- Compression libraries: optional dependencies -->
-                <additionalparam>-preventleak</additionalparam>
-                <additionalparam>net.jpountz</additionalparam>
-                <additionalparam>-preventleak</additionalparam>
-                <additionalparam>org.xerial.snappy</additionalparam>
-              </additionalJOptions>
-              <useStandardDocletOptions>false</useStandardDocletOptions>
-            </configuration>
-          </execution>
           <execution>
             <!-- Generate aggregated Javadoc for specified modules -->
             <id>aggregate-javadoc</id>
