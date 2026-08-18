@@ -449,7 +449,7 @@ pipeline {
           }
           stage('Build-Driver') {
             steps {
-              buildDriver('1.17')
+              buildDriver('openjdk@1.17')
             }
           }
           stage('Execute-Tests') {
@@ -564,7 +564,7 @@ pipeline {
           }
           stage('Build-Driver') {
             steps {
-              buildDriver('1.17')
+              buildDriver('openjdk@1.17')
             }
           }
           stage('Execute-Tests') {
@@ -592,7 +592,7 @@ pipeline {
             when {
               allOf {
                 environment name: 'SERVER_VERSION', value: '4.0'
-                environment name: 'JABBA_VERSION', value: '1.17'
+                environment name: 'JABBA_VERSION', value: 'openjdk@1.17'
               }
             }
             steps {
