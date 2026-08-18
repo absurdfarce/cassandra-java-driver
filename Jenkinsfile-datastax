@@ -323,8 +323,6 @@ pipeline {
     choice(
       name: 'ADHOC_BUILD_AND_EXECUTE_TESTS_JABBA_VERSION',
       choices: [
-                '1.8',           // Oracle JDK version 1.8 (current default)
-                'openjdk@1.11',  // OpenJDK version 11
                 'openjdk@1.17',  // OpenJDK version 17
                 'openjdk@1.21'   // OpenJDK version 21
                 ],
@@ -335,14 +333,6 @@ pipeline {
                         <tr>
                           <th align="left">Choice</th>
                           <th align="left">Description</th>
-                        </tr>
-                        <tr>
-                          <td><strong>1.8</strong></td>
-                          <td>Oracle JDK version 1.8 (<i>Used for compiling regardless of choice</i>)</td>
-                        </tr>
-                        <tr>
-                          <td><strong>openjdk@1.11</strong></td>
-                          <td>OpenJDK version 11</td>
                         </tr>
                         <tr>
                           <td><strong>openjdk@1.17</strong></td>
