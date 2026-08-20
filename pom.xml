@@ -96,6 +96,10 @@
     <graalapi.version>22.0.0.2</graalapi.version>
     <skipTests>false</skipTests>
     <skipUnitTests>${skipTests}</skipUnitTests>
+    <!-- for DriverBlockHoundIntegrationIT when using JDK 13+, see https://github.com/reactor/BlockHound/issues/33 -->
+    <blockhound.argline>-XX:+AllowRedefinitionToAddDeleteMethods</blockhound.argline>
+    <!-- allow deep reflection for mockito when using JDK 17+, see https://stackoverflow.com/questions/70993863/mockito-can-not-mock-random-in-java-17 -->
+    <mockitoopens.argline>--add-opens=java.base/jdk.internal.util.random=ALL-UNNAMED</mockitoopens.argline>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -1006,57 +1010,6 @@ limitations under the License.]]></inlineHeader>
       </activation>
       <properties>
         <testing.jvm>${testJavaHome}</testing.jvm>
-      </properties>
-    </profile>
-    <profile>
-      <!-- workarounds for running tests with JDK1.8 -->
-      <id>test-jdk-8</id>
-      <activation>
-        <jdk>[8,)</jdk>
-      </activation>
-    </profile>
-    <profile>
-      <!-- workarounds for running tests with JDK11 -->
-      <id>test-jdk-11</id>
-      <activation>
-        <jdk>[11,)</jdk>
-      </activation>
-    </profile>
-    <profile>
-      <!-- workarounds for running tests with JDK14 -->
-      <id>test-jdk-14</id>
-      <activation>
-        <jdk>[14,)</jdk>
-      </activation>
-      <properties>
-        <!-- for DriverBlockHoundIntegrationIT when using JDK 13+, see https://github.com/reactor/BlockHound/issues/33 -->
-        <blockhound.argline>-XX:+AllowRedefinitionToAddDeleteMethods</blockhound.argline>
-      </properties>
-    </profile>
-    <profile>
-      <!-- workarounds for running tests with JDK17 -->
-      <id>test-jdk-17</id>
-      <activation>
-        <jdk>[17,)</jdk>
-      </activation>
-      <properties>
-        <!-- for DriverBlockHoundIntegrationIT when using JDK 13+, see https://github.com/reactor/BlockHound/issues/33 -->
-        <blockhound.argline>-XX:+AllowRedefinitionToAddDeleteMethods</blockhound.argline>
-        <!-- allow deep reflection for mockito when using JDK 17+, see https://stackoverflow.com/questions/70993863/mockito-can-not-mock-random-in-java-17 -->
-        <mockitoopens.argline>--add-opens java.base/jdk.internal.util.random=ALL-UNNAMED</mockitoopens.argline>
-      </properties>
-    </profile>
-    <profile>
-      <!-- workarounds for running tests with JDK21 -->
-      <id>test-jdk-21</id>
-      <activation>
-        <jdk>[21,)</jdk>
-      </activation>
-      <properties>
-        <!-- for DriverBlockHoundIntegrationIT when using JDK 13+, see https://github.com/reactor/BlockHound/issues/33 -->
-        <blockhound.argline>-XX:+AllowRedefinitionToAddDeleteMethods</blockhound.argline>
-        <!-- allow deep reflection for mockito when using JDK 17+, see https://stackoverflow.com/questions/70993863/mockito-can-not-mock-random-in-java-17 -->
-        <mockitoopens.argline>--add-opens=java.base/jdk.internal.util.random=ALL-UNNAMED</mockitoopens.argline>
       </properties>
     </profile>
   </profiles>
