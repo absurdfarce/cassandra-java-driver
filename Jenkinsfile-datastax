@@ -46,9 +46,9 @@ def initializeEnvironment() {
   env.JAVA8_HOME = sh(label: 'Get JAVA8_HOME (in case ccm needs it)',script: '''#!/bin/bash -le
     . ${JABBA_SHELL}
     jabba which 1.8''', returnStdout: true).trim()
-    env.JAVA11_HOME = sh(label: 'Get JAVA11_HOME (in case ccm needs it)',script: '''#!/bin/bash -le
+  env.JAVA11_HOME = sh(label: 'Get JAVA11_HOME (in case ccm needs it)',script: '''#!/bin/bash -le
     . ${JABBA_SHELL}
-    jabba which openjdk@1.11''', returnStdout: true).trim()
+    jabba which openjdk@11''', returnStdout: true).trim()
 
   sh label: 'Download Apache CassandraⓇ, DataStax Enterprise or DataStax HCD ',script: '''#!/bin/bash -le
     . ${JABBA_SHELL}
