@@ -103,9 +103,9 @@ def buildDriver() {
   sh label: 'Build driver', script: '''#!/bin/bash -le
 
     . ${JABBA_SHELL}
-    jabba use ${JABBA_VERSION}
+    jabba use ${BUILD_JAVA_VERSION}
 
-    echo "Building with Java version ${JABBA_VERSION}"
+    echo "Building with Java version ${BUILD_JAVA_VERSION}"
 
     mvn -B -V install -DskipTests -Dmaven.javadoc.skip=true
   '''
@@ -124,7 +124,7 @@ def executeTests() {
     set +o allexport
 
     . ${JABBA_SHELL}
-    jabba use ${JABBA_VERSION}
+    jabba use ${BUILD_JAVA_VERSION}
 
     INTEGRATION_TESTS_FILTER_ARGUMENT=""
     if [ ! -z "${INTEGRATION_TESTS_FILTER}" ]; then
@@ -380,6 +380,7 @@ pipeline {
   environment {
     OS_VERSION = 'ubuntu/focal64/java-driver'
     JABBA_SHELL = '/usr/lib/jabba/jabba.sh'
+    BUILD_JAVA_VERSION = "openjdk@1.17"
     CCM_ENVIRONMENT_SHELL = '/usr/local/bin/ccm_environment.sh'
     SERIAL_ITS_ARGUMENT = "-DskipSerialITs=${params.SKIP_SERIAL_ITS}"
     ISOLATED_ITS_ARGUMENT = "-DskipIsolatedITs=${params.SKIP_ISOLATED_ITS}"
