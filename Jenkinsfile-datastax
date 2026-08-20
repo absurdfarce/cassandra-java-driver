@@ -100,7 +100,7 @@ ENVIRONMENT_EOF
 }
 
 def buildDriver() {
-  def buildDriverScript = '''#!/bin/bash -le
+  sh label: 'Build driver', script: '''#!/bin/bash -le
 
     . ${JABBA_SHELL}
     jabba use ${JABBA_VERSION}
@@ -109,7 +109,6 @@ def buildDriver() {
 
     mvn -B -V install -DskipTests -Dmaven.javadoc.skip=true
   '''
-  sh label: 'Build driver', script: buildDriverScript
 }
 
 def executeTests() {
@@ -443,7 +442,7 @@ pipeline {
           }
           stage('Build-Driver') {
             steps {
-              buildDriver('openjdk@1.17')
+              buildDriver()
             }
           }
           stage('Execute-Tests') {
@@ -558,7 +557,7 @@ pipeline {
           }
           stage('Build-Driver') {
             steps {
-              buildDriver('openjdk@1.17')
+              buildDriver()
             }
           }
           stage('Execute-Tests') {
