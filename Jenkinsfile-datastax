@@ -317,7 +317,7 @@ pipeline {
       name: 'ADHOC_BUILD_AND_EXECUTE_TESTS_JABBA_VERSION',
       choices: [
                 'openjdk@1.17',  // OpenJDK version 17
-                'openjdk@1.21'   // OpenJDK version 21
+                'openjdk@21'     // OpenJDK version 21
                 ],
       description: '''JDK version to use for <b>TESTING</b> when running adhoc <b>BUILD-AND-EXECUTE-TESTS</b> builds. <i>All builds will use JDK8 for building the driver</i>
                       <table style="width:100%">
@@ -332,7 +332,7 @@ pipeline {
                           <td>OpenJDK version 17</td>
                         </tr>
                         <tr>
-                          <td><strong>openjdk@1.21</strong></td>
+                          <td><strong>openjdk@21</strong></td>
                           <td>OpenJDK version 21</td>
                         </tr>
                       </table>''')
@@ -416,7 +416,7 @@ pipeline {
           axis {
             name 'JABBA_VERSION'
             values 'openjdk@1.17',  // jdk17
-                   'openjdk@1.21'   // jdk21
+                   'openjdk@21'     // jdk21
           }
         }
 
