@@ -665,6 +665,23 @@ limitations under the License.
                     <version>1.16</version>
                     <executions>
                         <execution>
+                            <id>check-jdk6</id>
+                            <phase>process-classes</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <configuration>
+                                <signature>
+                                    <groupId>org.codehaus.mojo.signature</groupId>
+                                    <artifactId>java16</artifactId>
+                                    <version>1.0</version>
+                                </signature>
+                                <annotations>
+                                    <annotation>com.datastax.driver.core.IgnoreJDK6Requirement</annotation>
+                                </annotations>
+                            </configuration>
+                        </execution>
+                        <execution>
                             <id>check-jdk8</id>
                             <goals>
                                 <goal>check</goal>
