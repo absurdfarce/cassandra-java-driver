@@ -902,7 +902,7 @@ public class CCMBridge implements CCMAccess {
 
     private Builder() {
       cassandraConfiguration.put("start_rpc", false);
-      cassandraConfiguration.put("storage_port", RANDOM_PORT);
+      cassandraConfiguration.put("storage_port", 7000);
       cassandraConfiguration.put("rpc_port", RANDOM_PORT);
       cassandraConfiguration.put("native_transport_port", RANDOM_PORT);
     }
