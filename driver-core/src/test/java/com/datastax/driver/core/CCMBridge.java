@@ -688,12 +688,13 @@ public class CCMBridge implements CCMAccess {
       String originalKey = entry.getKey();
       Object originalValue = entry.getValue();
 
-      execute(
-          CCM_COMMAND + " updateconf",
-          String.join(
+      String updateString = String.join(
               ":",
               getConfigKey(originalKey, originalValue, cassandraVersion),
-              getConfigValue(originalKey, originalValue, cassandraVersion)));
+              getConfigValue(originalKey, originalValue, cassandraVersion));
+      execute(
+          CCM_COMMAND + " updateconf %s",
+          updateString);
     }
   }
 
