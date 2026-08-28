@@ -704,8 +704,7 @@ public class CCMBridge implements CCMAccess {
   private static String IN_KB_STR = "_in_kb";
   private static int IN_KB_STR_LENGTH = IN_KB_STR.length();
 
-  @SuppressWarnings("unused")
-  private String getConfigKey(
+  private static String getConfigKey(
       String originalKey, Object originalValue, VersionNumber cassandraVersion) {
 
     // At least for now we won't support substitutions on nested keys.  This requires an extra
@@ -722,7 +721,7 @@ public class CCMBridge implements CCMAccess {
     return originalKey;
   }
 
-  private String getConfigValue(
+  private static String getConfigValue(
       String originalKey, Object originalValue, VersionNumber cassandraVersion) {
 
     String originalValueStr = originalValue.toString();
@@ -1124,11 +1123,11 @@ public class CCMBridge implements CCMAccess {
       if (!dse) {
         if (isMaterializedViewsDisabledByDefault(cassandraVersion)) {
           // enable materialized views
-          cassandraConfiguration.put("enable_materialized_views", true);
+          cassandraConfiguration.put(getConfigKey("enable_materialized_views",true,cassandraVersion), true);
         }
         if (isSasiConfigEnablementRequired(cassandraVersion)) {
           // enable SASI indexing in config (disabled by default in C* 4.0)
-          cassandraConfiguration.put("enable_sasi_indexes", true);
+          cassandraConfiguration.put(getConfigKey("enable_sasi_indexes",true,cassandraVersion), true);
         }
       }
       final CCMBridge ccm =
