@@ -100,8 +100,7 @@ def executeTests() {
       -Dccm.maxNumberOfNodes=3 \
       -DfailIfNoTests=false \
       -Dmaven.test.failure.ignore=true \
-      -Dmaven.javadoc.skip=true \
-      -Dproxy.path=${HOME}/proxy
+      -Dmaven.javadoc.skip=true
 
     # run isolated tests
     mvn -B -V verify \
