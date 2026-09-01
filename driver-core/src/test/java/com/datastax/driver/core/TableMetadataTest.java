@@ -299,35 +299,34 @@ public class TableMetadataTest extends CCMTestsSupport {
   public void should_parse_table_options() {
     VersionNumber version = ccm().getCassandraVersion();
     VersionNumber dseVersion = ccm().getDSEVersion();
-    boolean isOSSCassandra5 =
-        version.getMajor() > 4 && dseVersion == null;
+    boolean isOSSCassandra5 = version.getMajor() > 4 && dseVersion == null;
 
     // given
     String cql;
 
     // Cassandra 5.0.x
     if (isOSSCassandra5) {
-        cql =
-                String.format(
-                        "CREATE TABLE %s.with_options (\n"
-                                + "    k text,\n"
-                                + "    c1 int,\n"
-                                + "    c2 int,\n"
-                                + "    i int,\n"
-                                + "    PRIMARY KEY (k, c1, c2)\n"
-                                + ") WITH CLUSTERING ORDER BY (c1 DESC, c2 ASC)\n"
-                                + "   AND additional_write_policy = '99p'\n"
-                                + "   AND read_repair = 'BLOCKING'\n"
-                                + "   AND speculative_retry = '99.9p'\n"
-                                + "   AND gc_grace_seconds = 42\n"
-                                + "   AND bloom_filter_fp_chance = 0.01\n"
-                                + "   AND caching =  { 'keys' : 'ALL', 'rows_per_partition' : 10 }\n"
-                                + "   AND comment = 'My awesome table'\n"
-                                + "   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy', 'sstable_size_in_mb' : 15 }\n"
-                                + "   AND compression = { 'class' : 'org.apache.cassandra.io.compress.SnappyCompressor', 'chunk_length_in_kb' : 128 }\n"
-                                + "   AND crc_check_chance = 0.5\n" // available from C* 3.0
-                                + "   AND memtable_flush_period_in_ms = 1000;",
-                        keyspace);
+      cql =
+          String.format(
+              "CREATE TABLE %s.with_options (\n"
+                  + "    k text,\n"
+                  + "    c1 int,\n"
+                  + "    c2 int,\n"
+                  + "    i int,\n"
+                  + "    PRIMARY KEY (k, c1, c2)\n"
+                  + ") WITH CLUSTERING ORDER BY (c1 DESC, c2 ASC)\n"
+                  + "   AND additional_write_policy = '99p'\n"
+                  + "   AND read_repair = 'BLOCKING'\n"
+                  + "   AND speculative_retry = '99.9p'\n"
+                  + "   AND gc_grace_seconds = 42\n"
+                  + "   AND bloom_filter_fp_chance = 0.01\n"
+                  + "   AND caching =  { 'keys' : 'ALL', 'rows_per_partition' : 10 }\n"
+                  + "   AND comment = 'My awesome table'\n"
+                  + "   AND compaction = { 'class' : 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy', 'sstable_size_in_mb' : 15 }\n"
+                  + "   AND compression = { 'class' : 'org.apache.cassandra.io.compress.SnappyCompressor', 'chunk_length_in_kb' : 128 }\n"
+                  + "   AND crc_check_chance = 0.5\n" // available from C* 3.0
+                  + "   AND memtable_flush_period_in_ms = 1000;",
+              keyspace);
     }
     // Cassandra 4.0.x or 4.1.x
     else {
@@ -390,19 +389,19 @@ public class TableMetadataTest extends CCMTestsSupport {
     assertThat(table.getOptions().getCaching()).contains(entry("keys", "ALL"));
     assertThat(table.getOptions().getCaching()).contains(entry("rows_per_partition", "10"));
     assertThat(table.getOptions().getCompaction())
-          .contains(entry("class", "org.apache.cassandra.db.compaction.LeveledCompactionStrategy"));
+        .contains(entry("class", "org.apache.cassandra.db.compaction.LeveledCompactionStrategy"));
     assertThat(table.getOptions().getCompaction()).contains(entry("sstable_size_in_mb", "15"));
     assertThat(table.getOptions().getCompression())
-          .contains(
-              entry(
-                  "class",
-                  "org.apache.cassandra.io.compress.SnappyCompressor")); // sstable_compression
+        .contains(
+            entry(
+                "class",
+                "org.apache.cassandra.io.compress.SnappyCompressor")); // sstable_compression
     // becomes class
     assertThat(table.getOptions().getCompression())
-          .contains(entry("chunk_length_in_kb", "128")); // note the "in" prefix
+        .contains(entry("chunk_length_in_kb", "128")); // note the "in" prefix
     assertThat(table.getOptions().getDefaultTimeToLive()).isEqualTo(0);
     assertThat(table.getOptions().getSpeculativeRetry())
-          .isEqualTo(dseVersion == null ? "99.9p" : "99.9PERCENTILE");
+        .isEqualTo(dseVersion == null ? "99.9p" : "99.9PERCENTILE");
     assertThat(table.getOptions().getIndexInterval()).isNull();
     assertThat(table.getOptions().getMinIndexInterval()).isEqualTo(128);
     assertThat(table.getOptions().getMaxIndexInterval()).isEqualTo(2048);
@@ -411,30 +410,31 @@ public class TableMetadataTest extends CCMTestsSupport {
     assertThat(table.getOptions().getExtensions()).isEmpty(); // default
     assertThat(table.getOptions().getMemtableFlushPeriodInMs()).isEqualTo(1000);
     assertThat(table.asCQLQuery())
-          .contains("additional_write_policy = '99p'")
-          .contains("read_repair = 'BLOCKING'")
-          .contains("gc_grace_seconds = 42")
-          .contains("bloom_filter_fp_chance = 0.01")
-          .contains("comment = 'My awesome table'")
-          .contains("'keys' : 'ALL'")
-          .contains("'rows_per_partition' : 10")
-          .contains("'class' : 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'")
-          .contains("'sstable_size_in_mb' : 15")
-          .contains(
-              "'class' : 'org.apache.cassandra.io.compress.SnappyCompressor'") // sstable_compression becomes class
-          .contains("'chunk_length_in_kb' : 128") // note the "in" prefix
-          .contains("default_time_to_live = 0")
-          .contains(
-              dseVersion == null
-                  ? "speculative_retry = '99.9p'"
-                  : "speculative_retry = '99.9PERCENTILE'")
-          .contains("min_index_interval = 128")
-          .contains("max_index_interval = 2048")
-          .contains("crc_check_chance = 0.5")
-          .contains("cdc = false")
-          .contains("memtable_flush_period_in_ms = 1000")
-          .doesNotContain(" index_interval")
-          .doesNotContain("replicate_on_write");
+        .contains("additional_write_policy = '99p'")
+        .contains("read_repair = 'BLOCKING'")
+        .contains("gc_grace_seconds = 42")
+        .contains("bloom_filter_fp_chance = 0.01")
+        .contains("comment = 'My awesome table'")
+        .contains("'keys' : 'ALL'")
+        .contains("'rows_per_partition' : 10")
+        .contains("'class' : 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'")
+        .contains("'sstable_size_in_mb' : 15")
+        .contains(
+            "'class' : 'org.apache.cassandra.io.compress.SnappyCompressor'") // sstable_compression
+                                                                             // becomes class
+        .contains("'chunk_length_in_kb' : 128") // note the "in" prefix
+        .contains("default_time_to_live = 0")
+        .contains(
+            dseVersion == null
+                ? "speculative_retry = '99.9p'"
+                : "speculative_retry = '99.9PERCENTILE'")
+        .contains("min_index_interval = 128")
+        .contains("max_index_interval = 2048")
+        .contains("crc_check_chance = 0.5")
+        .contains("cdc = false")
+        .contains("memtable_flush_period_in_ms = 1000")
+        .doesNotContain(" index_interval")
+        .doesNotContain("replicate_on_write");
 
     // Also check that the generated CQL is valid and creates an identical table
     session().execute("DROP TABLE " + table.getName());

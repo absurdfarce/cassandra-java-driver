@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 import com.datastax.driver.core.schemabuilder.SchemaBuilder;
-import com.datastax.driver.core.utils.CassandraVersion;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Closer;
 import java.io.BufferedReader;

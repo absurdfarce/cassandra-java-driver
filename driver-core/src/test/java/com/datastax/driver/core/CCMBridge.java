@@ -688,13 +688,12 @@ public class CCMBridge implements CCMAccess {
       String originalKey = entry.getKey();
       Object originalValue = entry.getValue();
 
-      String updateString = String.join(
+      String updateString =
+          String.join(
               ":",
               getConfigKey(originalKey, originalValue, cassandraVersion),
               getConfigValue(originalKey, originalValue, cassandraVersion));
-      execute(
-          CCM_COMMAND + " updateconf %s",
-          updateString);
+      execute(CCM_COMMAND + " updateconf %s", updateString);
     }
   }
 
@@ -1124,11 +1123,13 @@ public class CCMBridge implements CCMAccess {
       if (!dse) {
         if (isMaterializedViewsDisabledByDefault(cassandraVersion)) {
           // enable materialized views
-          cassandraConfiguration.put(getConfigKey("enable_materialized_views",true,cassandraVersion), true);
+          cassandraConfiguration.put(
+              getConfigKey("enable_materialized_views", true, cassandraVersion), true);
         }
         if (isSasiConfigEnablementRequired(cassandraVersion)) {
           // enable SASI indexing in config (disabled by default in C* 4.0)
-          cassandraConfiguration.put(getConfigKey("enable_sasi_indexes",true,cassandraVersion), true);
+          cassandraConfiguration.put(
+              getConfigKey("enable_sasi_indexes", true, cassandraVersion), true);
         }
       }
       final CCMBridge ccm =

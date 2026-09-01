@@ -73,28 +73,25 @@ public class VirtualTableMetadataTest extends CCMTestsSupport {
   }
 
   private int expectedColumnCount() {
-      if (isCassandraVersionOrHigher("5.0.0"))
-          return 14;
-      if (isCassandraVersionOrHigher("4.1.0"))
-          return 13;
-      return 12;
+    if (isCassandraVersionOrHigher("5.0.0")) return 14;
+    if (isCassandraVersionOrHigher("4.1.0")) return 13;
+    return 12;
   }
 
   private String expectedCQLQuery() {
-      if (isCassandraVersionOrHigher("5.0.0"))
-          return "/* VIRTUAL TABLE system_views.clients (address inet, port int, client_options frozen<map<text, text>>, "
-                  + "connection_stage text, driver_name text, driver_version text, hostname text, keyspace_name text, "
-                  + "protocol_version int, request_count bigint, ssl_cipher_suite text, ssl_enabled boolean, "
-                  + "ssl_protocol text, username text, PRIMARY KEY (address, port))  */";
-      if (isCassandraVersionOrHigher("4.1.0"))
-          return "/* VIRTUAL TABLE system_views.clients (address inet, port int, client_options frozen<map<text, text>>, "
-                  + "connection_stage text, driver_name text, driver_version text, hostname text, protocol_version int, "
-                  + "request_count bigint, ssl_cipher_suite text, ssl_enabled boolean, ssl_protocol text, username text, "
-                  + "PRIMARY KEY (address, port))  */";
-      return "/* VIRTUAL TABLE system_views.clients (address inet, port int, "
-              + "connection_stage text, driver_name text, driver_version text, hostname text, protocol_version int, "
-              + "request_count bigint, ssl_cipher_suite text, ssl_enabled boolean, ssl_protocol text, username text, "
-              + "PRIMARY KEY (address, port))  */";
-
+    if (isCassandraVersionOrHigher("5.0.0"))
+      return "/* VIRTUAL TABLE system_views.clients (address inet, port int, client_options frozen<map<text, text>>, "
+          + "connection_stage text, driver_name text, driver_version text, hostname text, keyspace_name text, "
+          + "protocol_version int, request_count bigint, ssl_cipher_suite text, ssl_enabled boolean, "
+          + "ssl_protocol text, username text, PRIMARY KEY (address, port))  */";
+    if (isCassandraVersionOrHigher("4.1.0"))
+      return "/* VIRTUAL TABLE system_views.clients (address inet, port int, client_options frozen<map<text, text>>, "
+          + "connection_stage text, driver_name text, driver_version text, hostname text, protocol_version int, "
+          + "request_count bigint, ssl_cipher_suite text, ssl_enabled boolean, ssl_protocol text, username text, "
+          + "PRIMARY KEY (address, port))  */";
+    return "/* VIRTUAL TABLE system_views.clients (address inet, port int, "
+        + "connection_stage text, driver_name text, driver_version text, hostname text, protocol_version int, "
+        + "request_count bigint, ssl_cipher_suite text, ssl_enabled boolean, ssl_protocol text, username text, "
+        + "PRIMARY KEY (address, port))  */";
   }
 }
