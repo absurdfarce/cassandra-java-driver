@@ -93,10 +93,6 @@ The 'extras' module is also published as a separate artifact:
 We also provide a [shaded JAR](manual/shaded_jar/)
 to avoid the explicit dependency to Netty.
 
-If you can't use a dependency management tool, a
-[binary tarball](https://cassandra.apache.org/_/download.html)
-is available for download.
-
 ## Compatibility
 
 The Java client driver 3.13.0 ([branch 3.x](https://github.com/apache/cassandra-java-driver/tree/3.x)) has been tested against Apache
